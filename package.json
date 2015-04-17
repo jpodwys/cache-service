@@ -1,0 +1,38 @@
+{
+  "name": "cache-service",
+  "version": "0.1.0",
+  "description": "A tiered caching solution for node.",
+  "main": "index.js",
+  "dependencies": {
+    "redis": "~0.8.3",
+    "node-cache": "1.1.0"
+  },
+  "devDependencies": {
+    "mocha": "2.2.4",
+    "expect": "1.6.0",
+    "redis-mock": "0.4.7"
+  },
+  "scripts": {
+    "test": "bin/tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpodwys/cache-service"
+  },
+  "author": "Joe Podwys",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpodwys/cache-service/issues"
+  },
+  "homepage": "https://github.com/jpodwys/cache-service",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "cache",
+    "node",
+    "redis",
+    "node-cache",
+    "tiered"
+  ]
+}
