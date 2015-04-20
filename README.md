@@ -115,7 +115,7 @@ This config would attempt to create a primary node-cache instance with a fallbac
 
 Here are all the available options:
 
-###### type
+#### type
 
 This is the type of cache you want to use. Currently, the only options are 'redis', 'node-cache', and 'custom'. If you choose 'redis' or 'node-cache', cache-service will create an instance of that cache type for you using the assiciated config options. If you choose 'custom', you can pass in your own cache instance and it will work as long as you match the [Cache Module Interface](#cache-module-interface).
 
