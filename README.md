@@ -140,6 +140,11 @@ By default, if two subsequent caches have the same `defaultExpiraiton`, the seco
 
 ## readOnly
 
+Whether a cache should not be written to. Useful if you're sharing a redis cache with another team and your contract with them is that you will not alter their data.
+
+* type: boolean
+* default: false
+
 ## postApi (Currently not implemented)
 
 Only for use with [superagent-cache](https://github.com/jpodwys/superagent-cache). Whether this cache should be evaluated only in the event of an API failure. This is useful when you want to have an extremely long-term cache to serve data when an API is down. Currently, only the first cache module with postApi set to true will be used.
