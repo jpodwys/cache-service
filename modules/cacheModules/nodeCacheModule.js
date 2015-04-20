@@ -52,7 +52,7 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.delete = function(keys, cb){
+	this.cache.del = function(keys, cb){
 		try {
 			this.db.del(keys, function (err, count){
 				if(cb){

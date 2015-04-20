@@ -28,7 +28,7 @@ describe('Array', function(){
     });
     it('Setting then deleting then getting key should return null', function (done) {
       redisCache.set(key, value);
-      redisCache.delete(key);
+      redisCache.del(key);
       redisCache.get(key, function (err, result) {
         expect(result).toBe(null);
         done();

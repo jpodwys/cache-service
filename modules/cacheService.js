@@ -11,8 +11,8 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.cacheCollection = new cacheCollection(cacheModuleConfig);
   }
 
-  self.getKey = function(key, cb){
-    self.log(false, 'getKey() called for key:', {key: key});
+  self.get = function(key, cb){
+    self.log(false, 'get() called for key:', {key: key});
     var curCache;
     var curCacheIndex = 0;
     function getNextCache(){
@@ -37,14 +37,14 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         }
       }
       else {
-        self.log(false, 'getKey() key not found:', {key: key});
+        self.log(false, 'get() key not found:', {key: key});
         cb(null, null);
       }
     }
     getNextCache();
   }
 
-  self.setKey = function(key, value, expiration, cb){
+  self.set = function(key, value, expiration, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
       if(i === 0){
@@ -66,29 +66,29 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Setting key and value:', {key: key, value: value});
   }
 
-  self.deleteKeys = function(keys, cb){
+  self.del = function(keys, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
       if(i === 0){
-        cache.delete(keys, cb);
+        cache.del(keys, cb);
       }
       else{
-        cache.delete(keys);
+        cache.del(keys);
       }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
       if(i === 0){
-        cache.delete(keys, cb);
+        cache.del(keys, cb);
       }
       else{
-        cache.delete(keys);
+        cache.del(keys);
       }
     }
     self.log(false, 'Deleting keys:', {keys: keys}); 
   }
 
-  self.flushKeys = function(){
+  self.flush = function(){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
       cache.flushAll();

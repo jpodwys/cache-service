@@ -26,7 +26,7 @@ describe('Array', function(){
     });
     it('Setting then deleting then getting key should return null', function (done) {
   		nodeCache.set(key, value);
-  		nodeCache.delete(key);
+  		nodeCache.del(key);
   		nodeCache.get(key, function (err, result) {
   			expect(result).toBe(null);
   			done();
