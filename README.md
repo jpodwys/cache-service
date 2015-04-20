@@ -154,6 +154,33 @@ Only for use with [superagent-cache](https://github.com/jpodwys/superagent-cache
 
 # API
 
+## .get(key, callback (err, response))
 
+Retrieve a value by a given key.
 
-# More Documentation Coming Soon
+* key: type: string
+* callback: type: function
+* err: type: object
+* response: type: string or object
+
+## .set(key, value [, expiraiton, callback])
+
+Set a value by a given key.
+
+* key: type: string
+* callback: type: function
+* expiration: type: int, measure: seconds
+* callback: type: function
+
+## .del(keys, callback (err, count))
+
+Delete a key or an array of keys and their associated values.
+
+* keys: type: string || array of strings
+* callback: type: function
+* err: type: object
+* count: type: int
+
+## .flush()
+
+Flush all keys and values from an instance of cache-service.
