@@ -17,7 +17,7 @@ var cs = require('cache-service').cacheService;
 var cacheService = new cs();
 ```
 
-This gives you the [default configuration](#what-does-the-default-configuration-give-me?). Now you can cache like normal with the benefit of a tiered solution:
+This gives you the [default configuration](#what-does-the-default-configuration-give-me). Now you can cache like normal with the benefit of a tiered solution:
 
 ```javascript
 function getData(key, cb){
@@ -52,9 +52,48 @@ npm test
 
 By following the [Basic Usage](basic-usage) example above, cache-service will:
 
-* attempt to setup a primary redis cache connection (see the API section under [constructor](constructor) to see how to connect to redis)
+* attempt to setup a primary redis cache connection (see the [constructor](constructor) section to see how to connect to redis)
 * setup a node-cache instance that will act as a fallback cache if a redis cache connection is created and the primary and only cache if the redis cache connection is not created
 
 All caches will have a [defaultExpiration](defaultexpiraiton) of 900 seconds unless specified otherwise.
+
+## Constructor
+
+cache-service's constructor takes two optional parameters in the following order: [cacheServiceConfig](cache-service-configuraiton-object) and [cacheModuleConfig](cache-module-configuration-object):
+
+```javascript
+var cacheService = new cs(cacheServiceConfig, cacheModuleConfig);
+```
+
+## Cache Service Configuration Object
+
+#### nameSpace
+
+A namespace to be applied to all keys generated for this instance of cache-service.
+
+* type: string
+* default: empty string
+
+#### verbose
+
+When false, cache-service will log only errors. When true, cache-service will log all activity (useful for testing and debugging).
+
+* type: boolean
+* default: false
+
+#### writeToVolatileCaches
+
+Let's say you have an instance of cache-service with two caches inside of it: cacheA and cacheB.  If cacheA has a shorter [defaultExpiration](defaultExpiration) than cacheB and cacheA does not have the key for which you're looking, cache-service will then look in cacheB. If cache-service finds the desired key in cacheB and `writeToVolatileCaches` is `true`, cache-service will then write that key to cacheA.
+
+This is particularly useful if you want to have a short-term in-memory cache with the most used queries and a longer-term redis cache with all of the cached data.
+
+* type: boolean
+* default: true
+
+## Cache Module Configuration Object
+
+## API
+
+
 
 ##More Documentation Coming Soon
