@@ -145,15 +145,6 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     }
   }
 
-  function callbackExecutor(cb, err, result, key){
-    if(cb.length > 1){
-      cb(err, result, key);
-    }
-    else{
-      cb(result, key);
-    }
-  }
-
   function exception(name, message){
     this.name = name;
     this.message = message;
