@@ -1,6 +1,6 @@
 {
   "name": "cache-service",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A tiered caching solution for node.",
   "main": "index.js",
   "dependencies": {
