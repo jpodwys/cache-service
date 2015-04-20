@@ -67,6 +67,8 @@ var cacheService = new cs(cacheServiceConfig, cacheModuleConfig);
 
 ## Cache Service Configuration Object
 
+This is where you set cache-service-level config options.
+
 #### nameSpace
 
 A namespace to be applied to all keys generated for this instance of cache-service.
@@ -91,6 +93,59 @@ This is particularly useful if you want to have a short-term in-memory cache wit
 * default: true
 
 ## Cache Module Configuration Object
+
+This is where you tell cache-service which caches you want and how you want them configured. Here is an example cacheModuleConfig:
+
+```javascript
+var cacheModuleConfig = [
+  {
+    type: 'node-cache',
+    defaultExpiration: 300,
+    cacheWhenEmpty: false
+  },
+  {
+    type: 'redis',
+    redisEnv: 'REDISCLOUD_URL',
+    defaultExpiration: 900,
+    cacheWhenEmpty: false
+  }
+]
+```
+This config would attempt to create a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 5-minute defaultExpiration and the redis instance would have a 15-minute default expiraiton.
+
+Here are all the available options:
+
+###### type
+
+This is the type of cache you want to use. Currently, the only options are 'redis', 'node-cache', and 'custom'. If you choose 'redis' or 'node-cache', cache-service will create an instance of that cache type for you using the assiciated config options. If you choose 'custom', you can pass in your own cache instance and it will work as long as you match the [Cache Module Interface](#cache-module-interface).
+
+If you need external access to a redis or node-cache instance, you can instantiate a cache-module and then pass it as a 'custom' cache. See [Standalone Cache Module Usage](#standalone-cache-module-usage) for more info.
+
+* type: string
+
+#### defaultExpiration
+
+The expiration to include when executing cache set commands. Can be overridden via `.setKey()`'s optional expiraiton param.
+
+* type: int
+* default: 900
+* measure: seconds
+
+#### checkOnPreviousEmpty
+
+By default, if two subsequent caches have the same `defaultExpiraiton`, the second of the two caches will not be checked in the event that the first cache does not have a key. If `checkOnPreviousEmpty` is `true`, cache-service will check subsequent caches with the same `defaultExpiration`.
+
+* type: boolean
+* default: false
+
+#### readOnly
+
+#### postApi (Currently not implemented)
+
+Only for use with [superagent-cache](https://github.com/jpodwys/superagent-cache). Whether this cache should be evaluated only in the event of an API failure. This is useful when you want to have an extremely long-term cache to serve data when an API is down. Currently, only the first cache module with postApi set to true will be used.
+
+* type: boolean
+* default: false
 
 ## API
 
