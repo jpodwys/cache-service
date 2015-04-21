@@ -2,8 +2,10 @@ var cacheModule = require('./cacheModules/cacheModule');
 var redisCacheModule = require('./cacheModules/redisCacheModule');
 var nodeCacheModule = require('./cacheModules/nodeCacheModule');
 
-function cacheCollection(cacheModuleConfig){
+function cacheCollection(settings, cacheModuleConfig){
 	var self = this;
+  self.nameSpace = settings.nameSpace;
+  self.verbose = settings.verbose;
 	self.supportedCaches = ['redis', 'node-cache', 'custom'];
 
 	self.init = function(){
@@ -43,6 +45,14 @@ function cacheCollection(cacheModuleConfig){
     }
 	}
 
+  self.log = function (isError, message, data){
+    var indentifier = 'cacheService: ';
+    if(self.verbose || isError){
+      if(data) console.log(indentifier + message, data);
+      else console.log(indentifier + message);
+    }
+  }
+
 	function validateCacheConfig(cacheConfig){
     if(!cacheConfig.type || self.supportedCaches.indexOf(cacheConfig.type) < 0){
       throw new exception('BadCacheTypeException', 'You either did not set a cache type or you spelled it wrong.');
@@ -67,7 +77,10 @@ function cacheCollection(cacheModuleConfig){
     return (val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
   }
 
-
+  function exception(name, message){
+    this.name = name;
+    this.message = message;
+  }
 
 	self.init();
 }

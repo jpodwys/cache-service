@@ -72,7 +72,7 @@ describe('Array', function(){
           expect(response).toBe(value);
         });
       }
-      done();     
+      done();
     });
     it('.get(k) should search subsequent caches with longer default expirations when k is not found in earlier caches', function (done) {
       cacheService.set(key, value);

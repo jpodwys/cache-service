@@ -8,7 +8,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.cacheCollection = new cacheCollection(cacheModuleConfig);
+    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig);
   }
 
   self.get = function(key, cb){
