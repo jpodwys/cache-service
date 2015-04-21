@@ -16,7 +16,7 @@ function redisCacheModule(config){
 				this.redisData = config.redisUrl || null;
 			}
 			else if(config.redisEnv){
-				this.redisData = process.env[redisEnv] || null;
+				this.redisData = process.env[config.redisEnv] || null;
 			}
 			else if(config.redisData){
 				this.redisData = config.redisData
