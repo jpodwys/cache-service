@@ -24,7 +24,7 @@ function redisCacheModule(config){
 			this.readOnly = (typeof config.readOnly === 'boolean') ? config.readOnly : false;
 			try {
 				if (this.redisData) {
-					if(typeof redisData === 'string'){
+					if(typeof this.redisData === 'string'){
 						var redisURL = require('url').parse(this.redisData);
 						this.db = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true, max_attempts: 5});
 						this.db.auth(redisURL.auth.split(":")[1]);
