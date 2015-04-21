@@ -1,10 +1,10 @@
 {
   "name": "cache-service",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A tiered caching solution for node.",
   "main": "index.js",
   "dependencies": {
-    "redis": "~0.8.3",
+    "redis": "0.12.1",
     "node-cache": "1.1.0"
   },
   "devDependencies": {
