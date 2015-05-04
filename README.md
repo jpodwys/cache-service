@@ -21,14 +21,14 @@ This gives you the [default configuration](#what-does-the-default-configuration-
 
 ```javascript
 function getData(key, cb){
-  cacheService.getKey(key, function (err, response){
+  cacheService.get(key, function (err, response){
     if(!err){
       cb(err, response);
     }
     else{
       performQuery(key, function (err, response){
         var value = response.body.user;
-        cacheService.setKey(key, value);
+        cacheService.set(key, value);
         cb(err, user);
       });
     }
@@ -153,7 +153,7 @@ If you have a redis URL contained in an env variable (in process.env[redisEnv]),
 
 ## defaultExpiration
 
-The expiration to include when executing cache set commands. Can be overridden via `.setKey()`'s optional expiraiton param.
+The expiration to include when executing cache set commands. Can be overridden via `.set()`'s optional expiraiton param.
 
 * type: int
 * default: 900

@@ -45,7 +45,6 @@ function nodeCacheModule(config){
 				expiration = expiration || this.expiration;
 				cb = cb || noop;
 				this.db.set(key, value, expiration, cb);
-				
 			}
 		} catch (err) {
 			this.log(true, 'Set failed for cache of type ' + this.type, {name: 'NodeCacheSetException', message: err});

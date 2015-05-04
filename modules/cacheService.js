@@ -22,7 +22,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     var cacheGetCallback = function(err, result){
-      var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex);
+      var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex - 1);
       if(status.status === 'continue'){
         if(status.toIndex){
           curCacheIndex = status.toIndex;
@@ -120,11 +120,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       self.log(false, 'Key found:', {key: key, value: result});
       return {status: 'break', result: result};
     }
+    //console.log('LOG', !isPostApi)
     if(!isPostApi){
       var curCache = self.cacheCollection.preApi[cacheIndex];
-      for(var i = cacheIndex; i < self.cacheCollection.preApi.length - 1; i++){
-        var nextCache = self.cacheCollection.preApi[cacheIndex + 1];
-        if(nextCache.checkOnPreviousEmpty || (nextCache.expiration > curCache.expiration)){
+      for(var i = cacheIndex + 1; i < self.cacheCollection.preApi.length; i++){
+        var nextCache = self.cacheCollection.preApi[i];
+        if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
           return {status:'continue', toIndex: i};
         }
       }

@@ -6,8 +6,9 @@ var redisMock = rMock.createClient();
 var redisCache = new rcModule({redisMock: redisMock}).cache;
 var cacheService = new cs({}, [
   {type: 'custom', cache: redisCache},
-  {type: 'node-cache', defaultExpiration: 1600},
-  {type: 'node-cache', defaultExpiration: 1800}
+  {type: 'node-cache', defaultExpiration: 1600}
+  //{type: 'custom', cache: redisCache, defaultExpiration: 1800}
+  //{type: 'node-cache', defaultExpiration: 1800}
 ]);
 
 describe('Array', function(){
