@@ -43,5 +43,27 @@ describe('Array', function(){
   		expect(keyCount).toBe(0);
   		done();
     });
+    it('Setting several keys then calling .mget() should retrieve all keys', function (done) {
+      nodeCache.set(key, value);
+      nodeCache.set('key2', 'value2');
+      nodeCache.set('key3', 'value3');
+      nodeCache.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    });
+    it('Setting several keys via .mset() then calling .mget() should retrieve all keys', function (done) {
+      nodeCache.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+      nodeCache.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    });
 	});
 });

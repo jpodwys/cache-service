@@ -161,10 +161,10 @@ The expiration to include when executing cache set commands. Can be overridden v
 
 ## checkOnPreviousEmpty
 
-By default, if two subsequent caches have the same `defaultExpiraiton`, the second of the two caches will not be checked in the event that the first cache does not have a key. If `checkOnPreviousEmpty` is `true`, cache-service will check subsequent caches with the same `defaultExpiration`.
+By default, if two subsequent caches have the same `defaultExpiraiton`, the second of the two caches will be checked in the event that the first cache does not have a key. If `checkOnPreviousEmpty` is `false`, cache-service will not check subsequent caches with the same `defaultExpiration`.
 
 * type: boolean
-* default: false
+* default: true
 
 ## readOnly
 

@@ -51,14 +51,51 @@ function redisCacheModule(config){
 		}
 	}
 
+	this.cache.get = function(key, cb, cleanKey){
+		try {
+			cacheKey = (cleanKey) ? cleanKey : key;
+			this.log(false, 'Attempting to get key:', {key: cacheKey});
+			this.db.get(cacheKey, function(err, result){
+				try {
+					result = JSON.parse(result);
+				} catch (err) {
+					//Do nothing
+				}
+	      cb(err, result);
+			});
+		} catch (err) {
+			cb({name: 'GetException', message: err}, null);
+		}
+	}
+
+	this.cache.mget = function(keys, cb){
+		this.log(false, 'Attempting to mget keys:', {keys: keys});
+		this.db.mget(keys, function (err, response){
+			var obj = {};
+			for(var i = 0; i < response.length; i++){
+				if(response[i] !== null){
+					try {
+						response[i] = JSON.parse(response[i]);
+					} catch (err) {
+						//Do nothing
+					}
+					obj[keys[i]] = response[i];
+				}
+			}
+			cb(err, obj);
+		});
+	}
+
 	this.cache.set = function(key, value, expiration, cb){
 		try {
 			if(!this.readOnly){
 				expiration = expiration || this.expiration;
-				try {
-					value = JSON.stringify(value);
-				} catch (err) {
-					//Do nothing
+				if(typeof value === 'object'){
+					try {
+						value = JSON.stringify(value);
+					} catch (err) {
+						//Do nothing
+					}
 				}
 				cb = cb || noop;
 				this.db.setex(key, expiration, value, cb);
@@ -66,6 +103,23 @@ function redisCacheModule(config){
 		}catch (err) {
 			this.log(true, 'Set failed for cache of type ' + this.type, {name: 'RedisSetException', message: err});
 		}
+  }
+
+  this.cache.mset = function(obj){
+  	this.log(false, 'Attempting to mset data:', {data: obj});
+  	var arr = [];
+		for(key in obj){
+      if(obj.hasOwnProperty(key)){
+      	var value = obj[key];
+      	try {
+					value = JSON.stringify(value);
+				} catch (err) {
+					//Do nothing
+				}
+      	arr[key] = value;
+      }
+    }
+    this.db.mset(arr, noop);
   }
 
   this.cache.del = function(keys, cb){

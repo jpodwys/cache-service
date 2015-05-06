@@ -17,26 +17,45 @@ function nodeCacheModule(config){
     this.type = config.type || 'node-cache-standalone';
 	}
 
+	// this.cache.get = function(key, cb, cleanKey){
+	// 	try {
+	// 		cacheKey = (cleanKey) ? cleanKey : key;
+	// 		this.log(false, 'Attempting to get key:', {key: cacheKey});
+	// 		this.db.get(cacheKey, function(err, result){
+	// 			try {
+	// 				result = JSON.parse(result);
+	// 			} catch (err) {
+	// 				//Do nothing
+	// 			}
+	// 			if(typeof result[cacheKey] !== 'undefined'){
+	// 				cb(err, result[cacheKey]);	
+	// 			}
+	// 			else{
+	// 				cb(err, null);
+	// 			}
+	// 		});
+	// 	} catch (err) {
+	// 		cb({name: 'GetException', message: err}, null);
+	// 	}
+	// }
+
 	this.cache.get = function(key, cb, cleanKey){
 		try {
 			cacheKey = (cleanKey) ? cleanKey : key;
 			this.log(false, 'Attempting to get key:', {key: cacheKey});
 			this.db.get(cacheKey, function(err, result){
-				try {
-					result = JSON.parse(result);
-				} catch (err) {
-					//Do nothing
-				}
-				if(typeof result[cacheKey] !== 'undefined'){
-					cb(err, result[cacheKey]);	
-				}
-				else{
-					cb(err, null);
-				}
+	      cb(err, result);
 			});
 		} catch (err) {
 			cb({name: 'GetException', message: err}, null);
 		}
+	}
+
+	this.cache.mget = function(keys, cb){
+		this.log(false, 'Attempting to mget keys:', {keys: keys});
+		this.db.mget(keys, function (err, response){
+			cb(err, response);
+		});
 	}
 
 	this.cache.set = function(key, value, expiration, cb){
@@ -49,6 +68,15 @@ function nodeCacheModule(config){
 		} catch (err) {
 			this.log(true, 'Set failed for cache of type ' + this.type, {name: 'NodeCacheSetException', message: err});
 		}
+	}
+
+	this.cache.mset = function(obj){
+		this.log(false, 'Attempting to mset data:', {data: obj});
+		for(key in obj){
+      if(obj.hasOwnProperty(key)){
+      	this.db.set(key, obj[key]);
+      }
+    }
 	}
 
 	this.cache.del = function(keys, cb){
