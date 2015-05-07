@@ -142,11 +142,11 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Deleting keys:', {keys: keys}); 
   }
 
-  self.flush = function(cb){
+  self.flush = function(){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
       if(i === self.cacheCollection.preApi.length - 1){
-        cache.flushAll(cb);
+        cache.flushAll();
       }
       else{
         cache.flushAll();
@@ -155,7 +155,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
       if(i === self.cacheCollection.postApi.length - 1){
-        cache.flushAll(cb);
+        cache.flushAll();
       }
       else{
         cache.flushAll();

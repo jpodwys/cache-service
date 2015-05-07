@@ -17,28 +17,6 @@ function nodeCacheModule(config){
     this.type = config.type || 'node-cache-standalone';
 	}
 
-	// this.cache.get = function(key, cb, cleanKey){
-	// 	try {
-	// 		cacheKey = (cleanKey) ? cleanKey : key;
-	// 		this.log(false, 'Attempting to get key:', {key: cacheKey});
-	// 		this.db.get(cacheKey, function(err, result){
-	// 			try {
-	// 				result = JSON.parse(result);
-	// 			} catch (err) {
-	// 				//Do nothing
-	// 			}
-	// 			if(typeof result[cacheKey] !== 'undefined'){
-	// 				cb(err, result[cacheKey]);	
-	// 			}
-	// 			else{
-	// 				cb(err, null);
-	// 			}
-	// 		});
-	// 	} catch (err) {
-	// 		cb({name: 'GetException', message: err}, null);
-	// 	}
-	// }
-
 	this.cache.get = function(key, cb, cleanKey){
 		try {
 			cacheKey = (cleanKey) ? cleanKey : key;
@@ -92,14 +70,13 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.flushAll = function(cb){
+	this.cache.flushAll = function(){
   	try {
   		this.db.flushAll();
 	  	this.log(false, 'Flushing all data from cache of type ' + this.type);
   	} catch (err) {
   		this.log(true, 'Flush failed for cache of type ' + this.type, err);
   	}
-  	if(cb) cb();
   }
 
   var noop = function(){}
