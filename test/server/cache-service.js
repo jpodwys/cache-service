@@ -89,6 +89,49 @@ describe('Array', function(){
         });
       });
     });
+    it('.mget() should return all available keys (exact key number match)', function (done) {
+      cacheService.set(key, value);
+      cacheService.set('key2', 'value2');
+      cacheService.set('key3', 'value3');
+      cacheService.mget([key, 'key2', 'key3'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        done();
+      })
+    });
+    it('.mget() should return all available keys (not an exact key number match)', function (done) {
+      cacheService.set(key, value);
+      cacheService.set('key2', 'value2');
+      cacheService.set('key3', 'value3');
+      cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        expect(response.key4).toBe(undefined);
+        done();
+      })
+    });
+    //redis-mock does not yet support .mset()
+    // it('Setting several keys via .mset() then calling .mget() should retrieve all keys (exact key number match)', function (done) {
+    //   cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+    //   cacheService.mget([key, 'key2', 'key3'], function (err, response){
+    //     expect(response.key).toBe('value');
+    //     expect(response.key2).toBe('value2');
+    //     expect(response.key3).toBe('value3');
+    //     done();
+    //   })
+    // });
+    // it('Setting several keys via .mset() then calling .mget() should retrieve all keys (not an exact key number match)', function (done) {
+    //   cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+    //   cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+    //     expect(response.key).toBe('value');
+    //     expect(response.key2).toBe('value2');
+    //     expect(response.key3).toBe('value3');
+    //     expect(response.key4).toBe(undefined);
+    //     done();
+    //   })
+    // });
   });
 
 });

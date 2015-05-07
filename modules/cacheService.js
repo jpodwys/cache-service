@@ -12,6 +12,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.get = function(key, cb){
+    self.log(false, 'get() called for key:', {key: key});
+    var curCache;
+    var curCacheIndex = 0;
     var cacheGetCallback = function(err, result){
       var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex - 1);
       if(status.status === 'continue'){
@@ -32,9 +35,6 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cb(null, null);
       }
     }
-    self.log(false, 'get() called for key:', {key: key});
-    var curCache;
-    var curCacheIndex = 0;
     function getNextCache(){
       if(curCacheIndex < self.cacheCollection.preApi.length){
         curCache = self.cacheCollection.preApi[curCacheIndex++];
@@ -45,30 +45,34 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.mget = function(keys, cb){
-    var cacheMgetCallback = function(err, response){
-      if(response.length === keys.length){
-        returnResponse = response;
-        keepGoing = false;
-      }
-      else if(response.length > keysFound){
-        successIndex = i;
-        keysFound = response.length;
-        returnResponse = response;
-      }
-    }
-    var successIndex = null;
-    var keysFound = 0;
+    self.log(false, 'MGetting keys:', {keys: keys});
+    var maxKeysFound = 0;
     var returnError = null;
     var returnResponse = null;
     var keepGoing = true;
     var i = 0;
+    var cacheMgetCallback = function(err, response){
+      var objectSize = 0;
+      for(key in response){
+        if(response.hasOwnProperty(key)){
+          ++objectSize;
+        }
+      }
+      if(objectSize === keys.length){
+        returnResponse = response;
+        keepGoing = false;
+      }
+      else if(objectSize > maxKeysFound){
+        maxKeysFound = response.length;
+        returnResponse = response;
+      }
+    }
     while(keepGoing && i < self.cacheCollection.preApi.length){
-      i++;
       cache = self.cacheCollection.preApi[i];
       cache.mget(keys, cacheMgetCallback);
+      ++i;
     }
-    if(!keepGoing) i--;
-    writeToVolatileCaches(i, response);
+    writeToVolatileCaches(--i, returnResponse);
     cb(returnError, returnResponse);
   }
 
@@ -92,6 +96,18 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     self.log(false, 'Setting key and value:', {key: key, value: value});
+  }
+
+  self.mset = function(obj){
+    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
+      cache = self.cacheCollection.preApi[i];
+      cache.mset(obj);
+    }
+    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
+      cache = self.cacheCollection.postApi[i];
+      cache.set(obj); 
+    }
+    self.log(false, 'MSetting obj:', {obj: obj});
   }
 
   self.del = function(keys, cb){
