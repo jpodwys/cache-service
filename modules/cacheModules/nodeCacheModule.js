@@ -70,13 +70,14 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.mset = function(obj){
+	this.cache.mset = function(obj, cb){
 		this.log(false, 'Attempting to mset data:', {data: obj});
 		for(key in obj){
       if(obj.hasOwnProperty(key)){
       	this.db.set(key, obj[key]);
       }
     }
+    if(cb) cb();
 	}
 
 	this.cache.del = function(keys, cb){
@@ -91,13 +92,14 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.flushAll = function(){
+	this.cache.flushAll = function(cb){
   	try {
   		this.db.flushAll();
 	  	this.log(false, 'Flushing all data from cache of type ' + this.type);
   	} catch (err) {
   		this.log(true, 'Flush failed for cache of type ' + this.type, err);
   	}
+  	if(cb) cb();
   }
 
   var noop = function(){}

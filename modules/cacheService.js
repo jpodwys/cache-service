@@ -98,14 +98,24 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Setting key and value:', {key: key, value: value});
   }
 
-  self.mset = function(obj){
+  self.mset = function(obj, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
-      cache.mset(obj);
+      if(i === self.cacheCollection.preApi.length - 1){
+        cache.mset(obj, cb);
+      }
+      else{
+        cache.mset(obj);
+      }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
-      cache.set(obj); 
+      if(i === self.cacheCollection.postApi.length - 1){
+        cache.mset(obj, cb);
+      }
+      else{
+        cache.mset(obj);
+      }
     }
     self.log(false, 'MSetting obj:', {obj: obj});
   }
@@ -113,7 +123,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   self.del = function(keys, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
-      if(i === 0){
+      if(i === self.cacheCollection.preApi.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -122,7 +132,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
-      if(i === 0){
+      if(i === self.cacheCollection.postApi.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -132,14 +142,24 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Deleting keys:', {keys: keys}); 
   }
 
-  self.flush = function(){
+  self.flush = function(cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
-      cache.flushAll();
+      if(i === self.cacheCollection.preApi.length - 1){
+        cache.flushAll(cb);
+      }
+      else{
+        cache.flushAll();
+      }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
-      cache.flushAll();
+      if(i === self.cacheCollection.postApi.length - 1){
+        cache.flushAll(cb);
+      }
+      else{
+        cache.flushAll();
+      }
     }
     self.log(false, 'Flushing all data');
   }

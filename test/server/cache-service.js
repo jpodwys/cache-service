@@ -134,4 +134,67 @@ describe('Array', function(){
     // });
   });
 
+  describe('cachService performance tests (50ms added to all tests)', function () {
+    var speedTest = new cs({}, [
+      {type: 'node-cache'},
+      {type: 'node-cache', defaultExpiration: 1600}
+    ]);
+
+    var list = {};
+    var list2 = {};
+    var list3 = [];
+    var ITERATIONS = 250;
+    for(var i = 0; i < ITERATIONS; ++i){
+      list['key' + i] = 'value' + i;
+      list2['key' + i + i] = 'value' + i + i;
+      list3.push('key' + i + i);
+    }
+
+    beforeEach(function(){
+      speedTest.flush();
+      speedTest.mset(list2);
+    });
+
+    it('.set()  x 250', function (done) {
+      for(var i = 0; i < ITERATIONS; ++i){
+        speedTest.set('key' + i, 'value' + i, null, function(){
+          if(i == ITERATIONS - 1){
+            setTimeout(function(){
+              done();
+            }, 50);
+          }
+        });
+      }
+    });
+
+    it('.mset() x 250', function (done) {
+      speedTest.mset(list, function(){
+        setTimeout(function(){
+          done();
+        }, 50);
+      });
+    });
+
+    it('.get()  x 250', function (done) {
+      for(var i = 0; i < ITERATIONS; ++i){
+        speedTest.get('key' + i + i, function(){
+          if(i == ITERATIONS - 1){
+            setTimeout(function(){
+              done();
+            }, 50);
+          }
+        });
+      }
+    });
+
+    it('.mget() x 250', function (done) {
+      speedTest.mget(list3, function(){
+        setTimeout(function(){
+          done();
+        }, 50);
+      });
+    });
+
+  });
+
 });
