@@ -145,11 +145,11 @@ If you have all of your redis params already prepared as a URL in the following 
 
 * type: string
 
-## redisEnv
+## redisEnv (only for use with `type` 'redis')
 
 If you have a redis URL contained in an env variable (in process.env[redisEnv]), cache-service can retrieve it for you if you pass the env variable name with the object key `redisEnv`.
 
-* type: string (only for use with `type` 'redis')
+* type: string
 
 ## defaultExpiration
 
