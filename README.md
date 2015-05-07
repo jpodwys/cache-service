@@ -191,6 +191,15 @@ Retrieve a value by a given key.
 * err: type: object
 * response: type: string or object
 
+## .mget(keys, callback (err, response))
+
+Retrieve the values belonging to a series of keys. If a key is not found, it will not be in `response`.
+
+* keys: type: an array of strings
+* callback: type: function
+* err: type: object
+* response: type: object, example: {key: 'value', key2: 'value2'...}
+
 ## .set(key, value [, expiraiton, callback])
 
 Set a value by a given key.
@@ -200,7 +209,14 @@ Set a value by a given key.
 * expiration: type: int, measure: seconds
 * callback: type: function
 
-## .del(keys, callback (err, count))
+## .mset(obj [, callback])
+
+Set multiple values to multiple keys
+
+* obj: type: object, example: {'key': 'value', 'key2': 'value2'...}
+* callback: type: function
+
+## .del(keys [, callback (err, count)])
 
 Delete a key or an array of keys and their associated values.
 

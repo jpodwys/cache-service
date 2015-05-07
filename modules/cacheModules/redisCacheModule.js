@@ -105,7 +105,7 @@ function redisCacheModule(config){
 		}
   }
 
-  this.cache.mset = function(obj){
+  this.cache.mset = function(obj, cb){
   	this.log(false, 'Attempting to mset data:', {data: obj});
   	var arr = [];
 		for(key in obj){
@@ -119,6 +119,7 @@ function redisCacheModule(config){
       	arr[key] = value;
       }
     }
+    cb = cb || noop;
     this.db.mset(arr, noop);
   }
 
