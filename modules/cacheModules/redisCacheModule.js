@@ -124,24 +124,6 @@ function redisCacheModule(config){
     this.db.mset(arr, cb);
   }
 
-  // this.cache.mset = function(obj, expiration, cb){
-  // 	this.log(false, 'Attempting to mset data:', {data: obj});
-		// for(key in obj){
-  //     if(obj.hasOwnProperty(key)){
-  //     	var value = obj[key];
-  //     	try {
-		// 			value = JSON.stringify(value);
-		// 		} catch (err) {
-		// 			//Do nothing
-		// 		}
-  //     	this.db.multi().setex(key, expiraiton, value, noop);
-  //     }
-  //   }
-  //   this.db.multi().exec(function (err, replies){
-  //   	if(cb) cb();
-  //   });
-  // }
-
   this.cache.del = function(keys, cb){
   	try {
 			this.db.del(keys, function (err, count){
