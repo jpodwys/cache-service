@@ -15,12 +15,6 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'get() called for key:', {key: key});
     var curCache;
     var curCacheIndex = 0;
-    function getNextCache(){
-      if(curCacheIndex < self.cacheCollection.preApi.length){
-        curCache = self.cacheCollection.preApi[curCacheIndex++];
-        curCache.get(key, cacheGetCallback);
-      }
-    }
     var cacheGetCallback = function(err, result){
       var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex - 1);
       if(status.status === 'continue'){
@@ -41,7 +35,57 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cb(null, null);
       }
     }
+    function getNextCache(){
+      if(curCacheIndex < self.cacheCollection.preApi.length){
+        curCache = self.cacheCollection.preApi[curCacheIndex++];
+        curCache.get(key, cacheGetCallback);
+      }
+    }
     getNextCache();
+  }
+
+  self.mget = function(keys, cb){
+    self.log(false, 'MGetting keys:', {keys: keys});
+    var maxKeysFound = 0;
+    var returnError = null;
+    var returnResponse = null;
+    var keepGoing = true;
+    var i = 0;
+    var successIndex = 0;
+    var finished = false;
+    var finish = function(index){
+      if(!finished){
+        finished = true;
+        keepGoing = false;
+        writeToVolatileCaches(index, returnResponse);
+        cb(returnError, returnResponse);
+      }
+    }
+    var cacheMgetCallback = function(err, response, index){
+      var objectSize = 0;
+      for(key in response){
+        if(response.hasOwnProperty(key)){
+          ++objectSize;
+        }
+      }
+      if(objectSize === keys.length){
+        returnResponse = response;
+        finish(index);
+      }
+      else if(objectSize > maxKeysFound){
+        maxKeysFound = objectSize;
+        returnResponse = response;
+        successIndex = index;
+      }
+      if(index + 1 === self.cacheCollection.preApi.length){
+        finish(successIndex);
+      }
+    }
+    while(keepGoing && i < self.cacheCollection.preApi.length){
+      cache = self.cacheCollection.preApi[i];
+      cache.mget(keys, cacheMgetCallback, i);
+      i++;
+    }
   }
 
   self.set = function(key, value, expiration, cb){
@@ -66,10 +110,32 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Setting key and value:', {key: key, value: value});
   }
 
+  self.mset = function(obj, cb){
+    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
+      cache = self.cacheCollection.preApi[i];
+      if(i === self.cacheCollection.preApi.length - 1){
+        cache.mset(obj, cb);
+      }
+      else{
+        cache.mset(obj);
+      }
+    }
+    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
+      cache = self.cacheCollection.postApi[i];
+      if(i === self.cacheCollection.postApi.length - 1){
+        cache.mset(obj, cb);
+      }
+      else{
+        cache.mset(obj);
+      }
+    }
+    self.log(false, 'MSetting obj:', {obj: obj});
+  }
+
   self.del = function(keys, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
-      if(i === 0){
+      if(i === self.cacheCollection.preApi.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -78,7 +144,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
-      if(i === 0){
+      if(i === self.cacheCollection.postApi.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -91,11 +157,21 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   self.flush = function(){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
-      cache.flushAll();
+      if(i === self.cacheCollection.preApi.length - 1){
+        cache.flushAll();
+      }
+      else{
+        cache.flushAll();
+      }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
-      cache.flushAll();
+      if(i === self.cacheCollection.postApi.length - 1){
+        cache.flushAll();
+      }
+      else{
+        cache.flushAll();
+      }
     }
     self.log(false, 'Flushing all data');
   }
@@ -140,7 +216,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         var preExpiration = self.cacheCollection.preApi[tempIndex].expiration;
         if(preExpiration <= curExpiration){
           var preCache = self.cacheCollection.preApi[currentCacheIndex];
-          preCache.set(key, value); /*This means that a more volatile cache can have a key longer than a less volatile cache. Should I adjust this?*/
+          if(value){
+            preCache.set(key, value); /*This means that a more volatile cache can have a key longer than a less volatile cache. Should I adjust this?*/
+          }
+          else if(typeof key === 'object'){
+            preCache.mset(key);
+          }
         }
       }
     }

@@ -49,5 +49,28 @@ describe('Array', function(){
         });
       });
     });
+    it('Setting several keys then calling .mget() should retrieve all keys', function (done) {
+      redisCache.set(key, value);
+      redisCache.set('key2', 'value2');
+      redisCache.set('key3', 'value3');
+      redisCache.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    });
+    //redis-mock does not yet support .mset()
+    // it('Setting several keys via .mset() then calling .mget() should retrieve all keys', function (done) {
+    //   redisCache.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+    //   redisCache.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+    //     expect(response.key).toBe('value');
+    //     expect(response.key2).toBe('value2');
+    //     expect(response.key3).toBe('value3');
+    //     expect(response.key4).toBe(undefined);
+    //     done();
+    //   });
+    // });
 	});
 });

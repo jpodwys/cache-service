@@ -145,11 +145,11 @@ If you have all of your redis params already prepared as a URL in the following 
 
 * type: string
 
-## redisEnv
+## redisEnv (only for use with `type` 'redis')
 
 If you have a redis URL contained in an env variable (in process.env[redisEnv]), cache-service can retrieve it for you if you pass the env variable name with the object key `redisEnv`.
 
-* type: string (only for use with `type` 'redis')
+* type: string
 
 ## defaultExpiration
 
@@ -161,10 +161,10 @@ The expiration to include when executing cache set commands. Can be overridden v
 
 ## checkOnPreviousEmpty
 
-By default, if two subsequent caches have the same `defaultExpiraiton`, the second of the two caches will not be checked in the event that the first cache does not have a key. If `checkOnPreviousEmpty` is `true`, cache-service will check subsequent caches with the same `defaultExpiration`.
+By default, if two subsequent caches have the same `defaultExpiraiton`, the second of the two caches will be checked in the event that the first cache does not have a key. If `checkOnPreviousEmpty` is `false`, cache-service will not check subsequent caches with the same `defaultExpiration`.
 
 * type: boolean
-* default: false
+* default: true
 
 ## readOnly
 
@@ -191,6 +191,15 @@ Retrieve a value by a given key.
 * err: type: object
 * response: type: string or object
 
+## .mget(keys, callback (err, response))
+
+Retrieve the values belonging to a series of keys. If a key is not found, it will not be in `response`.
+
+* keys: type: an array of strings
+* callback: type: function
+* err: type: object
+* response: type: object, example: {key: 'value', key2: 'value2'...}
+
 ## .set(key, value [, expiraiton, callback])
 
 Set a value by a given key.
@@ -200,7 +209,14 @@ Set a value by a given key.
 * expiration: type: int, measure: seconds
 * callback: type: function
 
-## .del(keys, callback (err, count))
+## .mset(obj [, callback])
+
+Set multiple values to multiple keys
+
+* obj: type: object, example: {'key': 'value', 'key2': 'value2'...}
+* callback: type: function
+
+## .del(keys [, callback (err, count)])
 
 Delete a key or an array of keys and their associated values.
 
