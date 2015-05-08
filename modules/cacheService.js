@@ -110,23 +110,37 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.log(false, 'Setting key and value:', {key: key, value: value});
   }
 
-  self.mset = function(obj, cb){
+  self.mset = function(){
+    var obj;
+    var expiration;
+    var cb;
+    if(arguments.length === 3){
+      obj = arguments[0];
+      expiraiton = arguments[1] || null;
+      cb = arguments[2];
+    }
+    else if(arguments.length === 2){
+      obj = arguments[0];
+      expiraiton = null;
+      cb = arguments[1];
+    }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       cache = self.cacheCollection.preApi[i];
+      expiration = expiration || cache.expiration;
       if(i === self.cacheCollection.preApi.length - 1){
-        cache.mset(obj, cb);
+        cache.mset(obj, expiration, cb);
       }
       else{
-        cache.mset(obj);
+        cache.mset(obj, expiration);
       }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       cache = self.cacheCollection.postApi[i];
       if(i === self.cacheCollection.postApi.length - 1){
-        cache.mset(obj, cb);
+        cache.mset(obj, expiration, cb);
       }
       else{
-        cache.mset(obj);
+        cache.mset(obj, expiration);
       }
     }
     self.log(false, 'MSetting obj:', {obj: obj});

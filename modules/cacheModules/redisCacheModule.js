@@ -105,23 +105,47 @@ function redisCacheModule(config){
 		}
   }
 
-  this.cache.mset = function(obj, cb){
-  	this.log(false, 'Attempting to mset data:', {data: obj});
-  	var arr = [];
+  // this.cache.mset = function(obj, cb){
+  // 	this.log(false, 'Attempting to mset data:', {data: obj});
+  // 	var arr = [];
+		// for(key in obj){
+  //     if(obj.hasOwnProperty(key)){
+  //     	var value = obj[key];
+  //     	try {
+		// 			value = JSON.stringify(value);
+		// 		} catch (err) {
+		// 			//Do nothing
+		// 		}
+		// 		arr.push(key);
+		// 		arr.push(value);
+  //     }
+  //   }
+  //   cb = cb || noop;
+  //   this.db.mset(arr, cb);
+  // }
+
+  this.cache.mset = function(obj, expiration, cb){
+  	this.log(false, 'Attempting to msetex data:', {data: obj});
+  	var multi = this.db.multi();
 		for(key in obj){
       if(obj.hasOwnProperty(key)){
+      	var tempExpiration = expiration;
       	var value = obj[key];
+      	if(typeof value === 'object'){
+      		tempExpiration = value.expiration || tempExpiration;
+      		value = value.value;
+      	}
       	try {
 					value = JSON.stringify(value);
 				} catch (err) {
 					//Do nothing
 				}
-				arr.push(key);
-				arr.push(value);
+      	multi.setex(key, tempExpiration, value, noop);
       }
     }
-    cb = cb || noop;
-    this.db.mset(arr, cb);
+    multi.exec(function (err, replies){
+    	if(cb) cb();
+    });
   }
 
   this.cache.del = function(keys, cb){
