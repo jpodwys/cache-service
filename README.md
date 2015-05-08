@@ -212,3 +212,9 @@ Delete a key or an array of keys and their associated values.
 ## .flush()
 
 Flush all keys and values from an instance of cache-service.
+
+# Roadmap
+
+* Add standalone cache usage documentation and examples
+* Add `.mget()` and `.mset()` functions
+* Upgrade from redis-mock to mock-redis-client
