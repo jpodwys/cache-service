@@ -54,9 +54,9 @@ function nodeCacheModule(config){
       if(obj.hasOwnProperty(key)){
       	var tempExpiration = expiration;
       	var value = obj[key];
-      	if(typeof value === 'object'){
+      	if(typeof value === 'object' && value.cacheValue){
       		tempExpiration = value.expiration || tempExpiration;
-      		value = value.value;
+      		value = value.cacheValue;
       	}
       	this.db.set(key, obj[key], tempExpiration);
       }
