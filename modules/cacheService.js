@@ -82,7 +82,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     while(keepGoing && i < self.cacheCollection.preApi.length){
-      cache = self.cacheCollection.preApi[i];
+      var cache = self.cacheCollection.preApi[i];
       cache.mget(keys, cacheMgetCallback, i);
       i++;
     }
@@ -90,7 +90,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
 
   self.set = function(key, value, expiration, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      cache = self.cacheCollection.preApi[i];
+      var cache = self.cacheCollection.preApi[i];
       if(i === 0){
         cache.set(key, value, expiration, cb);
       }
@@ -99,7 +99,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      cache = self.cacheCollection.postApi[i];
+      var cache = self.cacheCollection.postApi[i];
       if(i === 0){
         cache.set(key, value, expiration, cb);
       }
@@ -125,7 +125,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       cb = arguments[1];
     }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      cache = self.cacheCollection.preApi[i];
+      var cache = self.cacheCollection.preApi[i];
       expiration = expiration || cache.expiration;
       if(i === self.cacheCollection.preApi.length - 1){
         cache.mset(obj, expiration, cb);
@@ -135,7 +135,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      cache = self.cacheCollection.postApi[i];
+      var cache = self.cacheCollection.postApi[i];
       if(i === self.cacheCollection.postApi.length - 1){
         cache.mset(obj, expiration, cb);
       }
@@ -148,7 +148,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
 
   self.del = function(keys, cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      cache = self.cacheCollection.preApi[i];
+      var cache = self.cacheCollection.preApi[i];
       if(i === self.cacheCollection.preApi.length - 1){
         cache.del(keys, cb);
       }
@@ -170,7 +170,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
 
   self.flush = function(){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      cache = self.cacheCollection.preApi[i];
+      var cache = self.cacheCollection.preApi[i];
       if(i === self.cacheCollection.preApi.length - 1){
         cache.flushAll();
       }
@@ -179,7 +179,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      cache = self.cacheCollection.postApi[i];
+      var cache = self.cacheCollection.postApi[i];
       if(i === self.cacheCollection.postApi.length - 1){
         cache.flushAll();
       }
