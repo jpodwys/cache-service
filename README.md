@@ -213,10 +213,13 @@ Set a value by a given key.
 
 Set multiple values to multiple keys
 
-* obj: type: object, example: {'key': 'value', 'key2': 'value2', 'key3': {value: 'value3', expiration: 60}}
+* obj: type: object, example: {'key': 'value', 'key2': 'value2', 'key3': {cacheValue: 'value3', expiration: 60}}
 * callback: type: function
 
-If no `expiration` is provided, it will fall back to each cache's `defaultExpiration`. If the value you provide for a given key in `obj` is an object, you can provide an `expiration` that will override all caches' `defaultExpiration` as well as the argument list's `expiration`.
+This function exposes a heirarchy of expiration values as follows:
+* The `expiration` property of a key that also contains a `cacheValue` property will override all other expirations. (This means that, if you are caching an object, the string 'cacheValue' is a reserved property name within that object.)
+* If an object with both `cacheValue` and `expiration` as properties is not present, the `expiration` provided to the `.mset()` argument list will be used.
+* If neither of the above is provided, each cache's `defaultExpiration` will be applied.
 
 ## .del(keys [, callback (err, count)])
 
