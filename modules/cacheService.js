@@ -116,12 +116,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     var cb;
     if(arguments.length === 3){
       obj = arguments[0];
-      expiraiton = arguments[1] || null;
+      expiration = arguments[1] || null;
       cb = arguments[2];
     }
     else if(arguments.length === 2){
       obj = arguments[0];
-      expiraiton = null;
+      expiration = null;
       cb = arguments[1];
     }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
