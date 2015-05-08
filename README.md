@@ -209,12 +209,14 @@ Set a value by a given key.
 * expiration: type: int, measure: seconds
 * callback: type: function
 
-## .mset(obj [, callback])
+## .mset(obj [, expiration, callback])
 
 Set multiple values to multiple keys
 
-* obj: type: object, example: {'key': 'value', 'key2': 'value2'...}
+* obj: type: object, example: {'key': 'value', 'key2': 'value2', 'key3': {value: 'value3', expiration: 60}}
 * callback: type: function
+
+If no `expiration` is provided, it will fall back to each cache's `defaultExpiration`. If the value you provide for a given key in `obj` is an object, you can provide an `expiration` that will override all caches' `defaultExpiration` as well as the argument list's `expiration`.
 
 ## .del(keys [, callback (err, count)])
 
