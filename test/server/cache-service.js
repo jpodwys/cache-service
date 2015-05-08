@@ -143,7 +143,7 @@ describe('Array', function(){
     var list = {};
     var list2 = {};
     var list3 = [];
-    var ITERATIONS = 250;
+    var ITERATIONS = 50;
     for(var i = 0; i < ITERATIONS; ++i){
       list['key' + i] = 'value' + i;
       list2['key' + i + i] = 'value' + i + i;
@@ -155,7 +155,7 @@ describe('Array', function(){
       speedTest.mset(list2);
     });
 
-    it('.set()  x 250', function (done) {
+    it('.set()  x 50', function (done) {
       for(var i = 0; i < ITERATIONS; ++i){
         speedTest.set('key' + i, 'value' + i, null, function(){
           if(i == ITERATIONS - 1){
@@ -167,7 +167,7 @@ describe('Array', function(){
       }
     });
 
-    it('.mset() x 250', function (done) {
+    it('.mset() x 50', function (done) {
       speedTest.mset(list, function(){
         setTimeout(function(){
           done();
@@ -175,7 +175,7 @@ describe('Array', function(){
       });
     });
 
-    it('.get()  x 250', function (done) {
+    it('.get()  x 50', function (done) {
       for(var i = 0; i < ITERATIONS; ++i){
         speedTest.get('key' + i + i, function(){
           if(i == ITERATIONS - 1){
@@ -187,7 +187,7 @@ describe('Array', function(){
       }
     });
 
-    it('.mget() x 250', function (done) {
+    it('.mget() x 50', function (done) {
       speedTest.mget(list3, function(){
         setTimeout(function(){
           done();

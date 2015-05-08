@@ -48,11 +48,17 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.mset = function(obj, cb){
+	this.cache.mset = function(obj, expiration, cb){
 		this.log(false, 'Attempting to mset data:', {data: obj});
 		for(key in obj){
       if(obj.hasOwnProperty(key)){
-      	this.db.set(key, obj[key]);
+      	var tempExpiration = expiration;
+      	var value = obj[key];
+      	if(typeof value === 'object'){
+      		tempExpiration = value.expiration || tempExpiration;
+      		value = value.value;
+      	}
+      	this.db.set(key, obj[key], tempExpiration);
       }
     }
     if(cb) cb();
