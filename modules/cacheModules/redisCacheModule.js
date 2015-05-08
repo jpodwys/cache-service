@@ -68,7 +68,7 @@ function redisCacheModule(config){
 		}
 	}
 
-	this.cache.mget = function(keys, cb){
+	this.cache.mget = function(keys, cb, index){
 		this.log(false, 'Attempting to mget keys:', {keys: keys});
 		this.db.mget(keys, function (err, response){
 			var obj = {};
@@ -82,7 +82,7 @@ function redisCacheModule(config){
 					obj[keys[i]] = response[i];
 				}
 			}
-			cb(err, obj);
+			cb(err, obj, index);
 		});
 	}
 
@@ -116,12 +116,31 @@ function redisCacheModule(config){
 				} catch (err) {
 					//Do nothing
 				}
-      	arr[key] = value;
+				arr.push(key);
+				arr.push(value);
       }
     }
     cb = cb || noop;
-    this.db.mset(arr, noop);
+    this.db.mset(arr, cb);
   }
+
+  // this.cache.mset = function(obj, expiration, cb){
+  // 	this.log(false, 'Attempting to mset data:', {data: obj});
+		// for(key in obj){
+  //     if(obj.hasOwnProperty(key)){
+  //     	var value = obj[key];
+  //     	try {
+		// 			value = JSON.stringify(value);
+		// 		} catch (err) {
+		// 			//Do nothing
+		// 		}
+  //     	this.db.multi().setex(key, expiraiton, value, noop);
+  //     }
+  //   }
+  //   this.db.multi().exec(function (err, replies){
+  //   	if(cb) cb();
+  //   });
+  // }
 
   this.cache.del = function(keys, cb){
   	try {

@@ -29,10 +29,10 @@ function nodeCacheModule(config){
 		}
 	}
 
-	this.cache.mget = function(keys, cb){
+	this.cache.mget = function(keys, cb, index){
 		this.log(false, 'Attempting to mget keys:', {keys: keys});
 		this.db.mget(keys, function (err, response){
-			cb(err, response);
+			cb(err, response, index);
 		});
 	}
 

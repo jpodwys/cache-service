@@ -51,7 +51,17 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     var returnResponse = null;
     var keepGoing = true;
     var i = 0;
-    var cacheMgetCallback = function(err, response){
+    var successIndex = 0;
+    var finished = false;
+    var finish = function(index){
+      if(!finished){
+        finished = true;
+        keepGoing = false;
+        writeToVolatileCaches(index, returnResponse);
+        cb(returnError, returnResponse);
+      }
+    }
+    var cacheMgetCallback = function(err, response, index){
       var objectSize = 0;
       for(key in response){
         if(response.hasOwnProperty(key)){
@@ -60,20 +70,22 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
       if(objectSize === keys.length){
         returnResponse = response;
-        keepGoing = false;
+        finish(index);
       }
       else if(objectSize > maxKeysFound){
-        maxKeysFound = response.length;
+        maxKeysFound = objectSize;
         returnResponse = response;
+        successIndex = index;
+      }
+      if(index + 1 === self.cacheCollection.preApi.length){
+        finish(successIndex);
       }
     }
     while(keepGoing && i < self.cacheCollection.preApi.length){
       cache = self.cacheCollection.preApi[i];
-      cache.mget(keys, cacheMgetCallback);
-      ++i;
+      cache.mget(keys, cacheMgetCallback, i);
+      i++;
     }
-    writeToVolatileCaches(--i, returnResponse);
-    cb(returnError, returnResponse);
   }
 
   self.set = function(key, value, expiration, cb){
