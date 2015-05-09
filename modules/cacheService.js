@@ -12,6 +12,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.get = function(key, cb){
+    if(arguments.length < 2){
+      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
+    }
     self.log(false, 'get() called for key:', {key: key});
     var curCache;
     var curCacheIndex = 0;
@@ -45,6 +48,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.mget = function(keys, cb){
+    if(arguments.length < 2){
+      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mget() requires 2 arguments.');
+    }
     self.log(false, 'MGetting keys:', {keys: keys});
     var maxKeysFound = 0;
     var returnError = null;
@@ -89,6 +95,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.set = function(key, value, expiration, cb){
+    if(arguments.length < 2){
+      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
+    }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       var cache = self.cacheCollection.preApi[i];
       if(i === 0){
@@ -111,17 +120,17 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.mset = function(){
-    var obj;
-    var expiration;
-    var cb;
+    if(arguments.length < 1){
+      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mset() requires a minimum of 1 argument.');
+    }
+    var obj = arguments[0];
+    var expiration = null;
+    var cb = null;
     if(arguments.length === 3){
-      obj = arguments[0];
-      expiration = arguments[1] || null;
+      expiration = arguments[1];
       cb = arguments[2];
     }
     else if(arguments.length === 2){
-      obj = arguments[0];
-      expiration = null;
       cb = arguments[1];
     }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
@@ -147,6 +156,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   }
 
   self.del = function(keys, cb){
+    if(arguments.length < 1){
+      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
+    }
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       var cache = self.cacheCollection.preApi[i];
       if(i === self.cacheCollection.preApi.length - 1){
@@ -210,7 +222,6 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       self.log(false, 'Key found:', {key: key, value: result});
       return {status: 'break', result: result};
     }
-    //console.log('LOG', !isPostApi)
     if(!isPostApi){
       var curCache = self.cacheCollection.preApi[cacheIndex];
       for(var i = cacheIndex + 1; i < self.cacheCollection.preApi.length; i++){
