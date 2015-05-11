@@ -168,7 +168,7 @@ describe('Array', function(){
     });
 
     it('.mset() x 50', function (done) {
-      speedTest.mset(list, function(){
+      speedTest.mset(list, null, function(){
         setTimeout(function(){
           done();
         }, 50);

@@ -105,25 +105,6 @@ function redisCacheModule(config){
 		}
   }
 
-  // this.cache.mset = function(obj, cb){
-  // 	this.log(false, 'Attempting to mset data:', {data: obj});
-  // 	var arr = [];
-		// for(key in obj){
-  //     if(obj.hasOwnProperty(key)){
-  //     	var value = obj[key];
-  //     	try {
-		// 			value = JSON.stringify(value);
-		// 		} catch (err) {
-		// 			//Do nothing
-		// 		}
-		// 		arr.push(key);
-		// 		arr.push(value);
-  //     }
-  //   }
-  //   cb = cb || noop;
-  //   this.db.mset(arr, cb);
-  // }
-
   this.cache.mset = function(obj, expiration, cb){
   	this.log(false, 'Attempting to msetex data:', {data: obj});
   	var multi = this.db.multi();

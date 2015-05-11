@@ -124,15 +124,8 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mset() requires a minimum of 1 argument.');
     }
     var obj = arguments[0];
-    var expiration = null;
-    var cb = null;
-    if(arguments.length === 3){
-      expiration = arguments[1];
-      cb = arguments[2];
-    }
-    else if(arguments.length === 2){
-      cb = arguments[1];
-    }
+    var expiration = arguments[1] || null;
+    var cb = arguments[2] || null;
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       var cache = self.cacheCollection.preApi[i];
       expiration = expiration || cache.expiration;
