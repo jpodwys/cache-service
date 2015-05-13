@@ -271,7 +271,7 @@ var nodeCacheModuleInstance = new nodeCacheModule({
   //type is not necessary since we're instantiating a specific type manually
   defaultExpiration: 60,
   cacheWhenEmpty: false
-});
+}).cache;
 ```
 
 #### Inject
