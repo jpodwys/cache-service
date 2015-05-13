@@ -6,7 +6,7 @@ If you use superagent from node, check out [superagent-cache](https://github.com
 
 # What Does cache-service Do?
 
-cache-service allows you to create redundant, cache-agnostic caching configurations. By default, it supports redis and node-cach, but you can add any cache you want as long as you follow the same interface.
+cache-service allows you to create redundant, cache-agnostic caching configurations. By default, it supports [redis](http://redis.io/) (using [node_redis](https://github.com/mranney/node_redis)) and [node-cache](https://github.com/tcs-de/nodecache), but you can add any cache you want as long as you follow the [same interface](#cache-module-interface).
 
 # Basic Usage
 
@@ -234,8 +234,66 @@ Delete a key or an array of keys and their associated values.
 
 Flush all keys and values from an instance of cache-service.
 
+# Standalone Cache Module Usage
+
+When you pass a `cacheModuleConfig` to cache-service's constructor, it internally instantiates cache modules based on what data you provide. For example, the following `cacheModuleConfig` will internally instantiate a single nodeCacheModule instance with the given settings:
+
+```javascript
+[
+  {
+    type: 'node-cache',
+    defaultExpiration: 60,
+    cacheWhenEmpty: false
+  }
+]
+```
+
+But what if you want to manually instantiate your cache modules? There are several reason you might want to do this including:
+* Having more testable code
+* Knowing that a redis connection was successful before attempting to create a cache-service instance
+* Having an external reference to a cache module without having to drill into cache-service's innards
+* Injecting a custom cache module of your own creation (for example a mem-cache or a mongo cache module)
+* Simply wanting to use a cache module and not cache-service (perhaps you like the extra convenience features like being able to add expirations to `.mset()` or built-in logging)
+
+## Require, Instantiate, and Inject
+
+#### Require
+cache-service provides two native cache modules. A cache module is simply a wrapper for a cache type. The modules provided are for node-cache and redis. To require nodeCacheModule for manual instantiation, do the following:
+
+```javascript
+var nodeCacheModule = require('cache-service').nodeCacheModule;
+```
+#### Instantiate
+To instantiate it, simply pass almost the same object we passed above in the `cacheModuleConfig` array as follows:
+
+```javascript
+var nodeCacheModuleInstance = new nodeCacheModule({
+  //type is not necessary since we're instantiating a specific type manually
+  defaultExpiration: 60,
+  cacheWhenEmpty: false
+});
+```
+
+#### Inject
+
+Now let's pass our manually instantiated nodeCacheModuleInstance into our cache-service constructor:
+
+```javascript
+var cacheService = new cs({}, [
+  {
+    type: 'custom', //A type of 'custom' tells cache-service that this cache has already been instantiated
+    cache: nodeCacheModuleInstance
+  }
+]);
+```
+
+# Cache Module Interface
+
+Documentation coming soon.
+
 # Roadmap
 
-* Add standalone cache usage documentation and examples
-* Add `.mget()` and `.mset()` functions
+* ~~Add standalone cache usage documentation and examples~~
+* ~~Add `.mget()` and `.mset()` functions~~
+* Add cache module interface documentation and examples
 * Upgrade from redis-mock to mock-redis-client
