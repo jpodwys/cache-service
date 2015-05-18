@@ -52,7 +52,7 @@ function nodeCacheModule(config){
 		this.log(false, 'Attempting to mset data:', {data: obj});
 		for(key in obj){
       if(obj.hasOwnProperty(key)){
-      	var tempExpiration = expiration;
+      	var tempExpiration = expiration || this.expiration;
       	var value = obj[key];
       	if(typeof value === 'object' && value.cacheValue){
       		tempExpiration = value.expiration || tempExpiration;

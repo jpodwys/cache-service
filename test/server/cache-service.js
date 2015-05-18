@@ -1,6 +1,7 @@
 var expect = require('expect');
 var cs = require('../../modules/cacheService');
-var rMock = require('redis-mock');
+//var rMock = require('redis-mock');
+var rMock = require('mock-redis-client').createMockRedis();
 var rcModule = require('../../modules/cacheModules/redisCacheModule');
 var redisMock = rMock.createClient();
 var redisCache = new rcModule({redisMock: redisMock}).cache;
@@ -29,13 +30,14 @@ describe('Array', function(){
       });
     });
     it('.set(k, v, exp), .get(k)', function (done) {
-      cacheService.set(key, value, 0.001);
+      this.timeout(5000);
+      cacheService.set(key, value, 1);
       setTimeout(function(){
         cacheService.get(key, function (err, response){
           expect(response).toBe(null);
           done();
         });
-      }, 10);
+      }, 2100);
     });
     it('.del(string)', function (done) {
       cacheService.set(key, value);
@@ -112,26 +114,25 @@ describe('Array', function(){
         done();
       })
     });
-    //redis-mock does not yet support .mset()
-    // it('Setting several keys via .mset() then calling .mget() should retrieve all keys (exact key number match)', function (done) {
-    //   cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
-    //   cacheService.mget([key, 'key2', 'key3'], function (err, response){
-    //     expect(response.key).toBe('value');
-    //     expect(response.key2).toBe('value2');
-    //     expect(response.key3).toBe('value3');
-    //     done();
-    //   })
-    // });
-    // it('Setting several keys via .mset() then calling .mget() should retrieve all keys (not an exact key number match)', function (done) {
-    //   cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
-    //   cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
-    //     expect(response.key).toBe('value');
-    //     expect(response.key2).toBe('value2');
-    //     expect(response.key3).toBe('value3');
-    //     expect(response.key4).toBe(undefined);
-    //     done();
-    //   })
-    // });
+    it('Setting several keys via .mset() then calling .mget() should retrieve all keys (exact key number match)', function (done) {
+      cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+      cacheService.mget([key, 'key2', 'key3'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        done();
+      })
+    });
+    it('Setting several keys via .mset() then calling .mget() should retrieve all keys (not an exact key number match)', function (done) {
+      cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+      cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe('value');
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe('value3');
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    });
   });
 
   describe('cachService performance tests (50ms added to all tests)', function () {

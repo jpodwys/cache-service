@@ -110,7 +110,7 @@ function redisCacheModule(config){
   	var multi = this.db.multi();
 		for(key in obj){
       if(obj.hasOwnProperty(key)){
-      	var tempExpiration = expiration;
+      	var tempExpiration = expiration || this.expiration;
       	var value = obj[key];
       	if(typeof value === 'object' && value.cacheValue){
       		tempExpiration = value.expiration || tempExpiration;
@@ -121,11 +121,11 @@ function redisCacheModule(config){
 				} catch (err) {
 					//Do nothing
 				}
-      	multi.setex(key, tempExpiration, value, noop);
+      	multi.setex(key, tempExpiration, value);
       }
     }
     multi.exec(function (err, replies){
-    	if(cb) cb();
+    	if(cb) cb(err, replies);
     });
   }
 
