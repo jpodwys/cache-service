@@ -295,5 +295,6 @@ Documentation coming soon.
 
 * ~~Add standalone cache usage documentation and examples~~
 * ~~Add `.mget()` and `.mset()` functions~~
+* ~~Upgrade from redis-mock to mock-redis-client~~ (My PRs were merged for it and its dependency.)
+* Look into upgrading from mock-redis-client to redis-js or fakeredis (I submitted a PR to redis-js and an issue to fakeredis. Will do more when one of them is merged/fixed.)
 * Add cache module interface documentation and examples
-* Upgrade from redis-mock to mock-redis-client

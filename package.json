@@ -1,6 +1,6 @@
 {
   "name": "cache-service",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "A tiered caching solution for node.",
   "main": "index.js",
   "dependencies": {
@@ -10,7 +10,7 @@
   "devDependencies": {
     "mocha": "2.2.4",
     "expect": "1.6.0",
-    "redis-mock": "0.4.8"
+    "mock-redis-client": "0.90.21"
   },
   "scripts": {
     "test": "bin/tests"
