@@ -6,7 +6,6 @@
 
 var expect = require('expect');
 var cs = require('../../modules/cacheService');
-var rMock = require('redis-mock');
 var rMock = require('mock-redis-client').createMockRedis();
 var rcModule = require('../../modules/cacheModules/redisCacheModule');
 var redisMock = rMock.createClient();
