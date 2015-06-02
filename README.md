@@ -291,11 +291,14 @@ var cacheService = new cs({}, [
 
 Documentation coming soon.
 
-# Roadmap
+# Roadmap to 1.0.0
 
 * ~~Add standalone cache usage documentation and examples~~
 * ~~Add `.mget()` and `.mset()` functions~~
 * ~~Upgrade from redis-mock to mock-redis-client~~ (My PRs were merged for it and its dependency.)
+* ~~Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule~~ (decided against this so standalone redisCacheModule usage is more robust)
 * Look into upgrading from mock-redis-client to redis-js or fakeredis (I submitted a PR to redis-js and an issue to fakeredis. Will do more when one of them is merged/fixed.)
 * Add cache module interface documentation and examples
-* ~~Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule~~ (decided against this so standalone redisCacheModule usage is more robust)
+* Simplify `cacheCollection` by removing `postApi` and `preApi` properties (These are only present for a feature planned for superagent-cache. I plan to add that feature directly to superagent-cache with not official support for it in cache-service.)
+* Add thorough comments to the code
+* Fix inconsistent indentation in the files found in the cacheModules folder
