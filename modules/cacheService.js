@@ -84,6 +84,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         successIndex = index;
       }
       if(index + 1 === self.cacheCollection.preApi.length){
+        returnResponse = response;
         finish(successIndex);
       }
     }

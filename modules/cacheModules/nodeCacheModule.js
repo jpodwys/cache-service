@@ -58,7 +58,7 @@ function nodeCacheModule(config){
       		tempExpiration = value.expiration || tempExpiration;
       		value = value.cacheValue;
       	}
-      	this.db.set(key, obj[key], tempExpiration);
+      	this.db.set(key, value, tempExpiration);
       }
     }
     if(cb) cb();

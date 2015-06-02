@@ -42,6 +42,76 @@ describe('cachService API tests', function () {
       });
     }, 2100);
   });
+
+  it('.mset(obj), .mget(array) (exact key match)', function (done) {
+    cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+    cacheService.mget([key, 'key2', 'key3'], function (err, response){
+      expect(response.key).toBe('value');
+      expect(response.key2).toBe('value2');
+      expect(response.key3).toBe('value3');
+      done();
+    });
+  });
+
+  it('.mset(obj), .mget(array) (not exact key match)', function (done) {
+    cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'});
+    cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+      expect(response.key).toBe('value');
+      expect(response.key2).toBe('value2');
+      expect(response.key3).toBe('value3');
+      expect(response.key4).toBe(undefined);
+      done();
+    });
+  });
+
+  it('.mset(obj, exp), .mget(array)', function (done) {
+    this.timeout(5000);
+    cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'}, 1);
+    setTimeout(function(){
+      cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe(undefined);
+        expect(response.key2).toBe(undefined);
+        expect(response.key3).toBe(undefined);
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    }, 2100);
+  });
+
+  it('.mset(obj with expirations, exp), .mget(array) (exact key match)', function (done) {
+    this.timeout(5000);
+    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 3}, 'key3': 'value3'}, 1);
+    setTimeout(function(){
+      cacheService.mget([key, 'key2', 'key3'], function (err, response){
+        expect(response.key).toBe(undefined);
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe(undefined);
+        expect(response.key4).toBe(undefined);
+        done();
+      });
+    }, 2100);
+  });
+
+  it('.mset(obj with expirations, exp), .mget(array) (not exact key match)', function (done) {
+    this.timeout(5000);
+    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 3}, 'key3': 'value3'}, 1);
+    setTimeout(function(){
+      cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
+        expect(response.key).toBe(undefined);
+        expect(response.key2).toBe('value2');
+        expect(response.key3).toBe(undefined);
+        expect(response.key4).toBe(undefined);
+        setTimeout(function(){
+          cacheService.mget(['key2'], function (err, response){
+            expect(response.key2).toBe(undefined);
+            done();
+          });
+        }, 2100);
+      done();
+      });
+    }, 2100);
+  });
+
   it('.del(string)', function (done) {
     cacheService.set(key, value);
     cacheService.del(key, function (err, count){

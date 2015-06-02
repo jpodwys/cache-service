@@ -298,4 +298,4 @@ Documentation coming soon.
 * ~~Upgrade from redis-mock to mock-redis-client~~ (My PRs were merged for it and its dependency.)
 * Look into upgrading from mock-redis-client to redis-js or fakeredis (I submitted a PR to redis-js and an issue to fakeredis. Will do more when one of them is merged/fixed.)
 * Add cache module interface documentation and examples
-* Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule
+* ~~Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule~~ (decided against this so standalone redisCacheModule usage is more robust)
