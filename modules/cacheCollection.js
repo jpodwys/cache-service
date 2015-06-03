@@ -41,14 +41,10 @@ function cacheCollection(settings, cacheModuleConfig){
     else{
       self.cacheModuleConfig = [{type: 'redis'}, {type: 'node-cache'}];
     }
-    self.preApi = [];
-    self.postApi = [];
+    self.caches = [];
 
     for(var i = 0; i < self.cacheModuleConfig.length; i++){
       var cacheConfig = validateCacheConfig(self.cacheModuleConfig[i]);
-      if(cacheConfig.postApi && self.postApi.length > 0){
-        continue;
-      }
       var cache = null;
       if(cacheConfig.type != 'custom'){
         try {
@@ -57,17 +53,15 @@ function cacheCollection(settings, cacheModuleConfig){
           log(true, 'Failed to get requested cache module with config ' + JSON.stringify(cacheConfig) + ' :', err);
         }
         if(cache && cache.db){
-          var preOrPostApi = (!cacheConfig.postApi) ? 'preApi' : 'postApi';
-          self[preOrPostApi].push(cache);
+          self.caches.push(cache);
         }
       }
       else{
-        var preOrPostApi = (!cacheConfig.postApi) ? 'preApi' : 'postApi';
-        self[preOrPostApi].push(self.cacheModuleConfig[i].cache);
+        self.caches.push(self.cacheModuleConfig[i].cache);
       }
     }
-    if(self.preApi.length < 1){
-      throw new exception('NoCacheException', 'No pre-api caches were succesfully initialized.');
+    if(self.caches.length < 1){
+      throw new exception('NoCacheException', 'No caches were succesfully initialized.');
     }
   }
 
