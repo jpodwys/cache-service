@@ -1,11 +1,25 @@
 var cacheModule = require('./cacheModule');
 var nodeCache = require('node-cache');
 
+/**
+ * nodeCacheModule constructor
+ * @constructor
+ * @param config: {
+ *    type:                 {string | 'node-cache-standalone'}
+ *    verbose:              {bool | false},
+ *    expiration:           {integer | 900},
+ *    readOnly:             {boolean | false},
+ *    checkOnPreviousEmpty  {bool | true}
+ * }
+ */
 function nodeCacheModule(config){
 
   config = config || {};
   this.cache = new cacheModule(config);
 
+  /**
+   * Initialize nodeCacheModule given the provided constructor params
+   */
   this.cache.init = function(){
     try {
       this.db = new nodeCache();
@@ -17,6 +31,12 @@ function nodeCacheModule(config){
     this.type = config.type || 'node-cache-standalone';
   }
 
+  /**
+   * Get the value associated with a given key
+   * @param {string} key
+   * @param {function} cb
+   * @param {string} cleanKey
+   */
   this.cache.get = function(key, cb, cleanKey){
     try {
       cacheKey = (cleanKey) ? cleanKey : key;
@@ -29,6 +49,12 @@ function nodeCacheModule(config){
     }
   }
 
+  /**
+   * Get multiple values given multiple keys
+   * @param {array} keys
+   * @param {function} cb
+   * @param {integer} index
+   */
   this.cache.mget = function(keys, cb, index){
     this.log(false, 'Attempting to mget keys:', {keys: keys});
     this.db.mget(keys, function (err, response){
@@ -36,6 +62,13 @@ function nodeCacheModule(config){
     });
   }
 
+  /**
+   * Associate a key and value and optionally set an expiration
+   * @param {string} key
+   * @param {string | object} value
+   * @param {integer} expiration
+   * @param {function} cb
+   */
   this.cache.set = function(key, value, expiration, cb){
     try {
       if(!this.readOnly){
@@ -48,6 +81,12 @@ function nodeCacheModule(config){
     }
   }
 
+  /**
+   * Associate multiple keys with multiple values and optionally set expirations per function and/or key
+   * @param {object} obj
+   * @param {integer} expiration
+   * @param {function} cb
+   */
   this.cache.mset = function(obj, expiration, cb){
     this.log(false, 'Attempting to mset data:', {data: obj});
     for(key in obj){
@@ -64,6 +103,10 @@ function nodeCacheModule(config){
     if(cb) cb();
   }
 
+  /**
+   * Flush all keys and values from all configured caches in cacheCollection
+   * @param {function} cb
+   */
   this.cache.flushAll = function(cb){
     try {
       this.db.flushAll();

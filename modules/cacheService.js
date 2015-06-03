@@ -224,6 +224,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
 
   /**
    * Flush all keys and values from all configured caches in cacheCollection
+   * @param {function} cb
    */
   self.flush = function(cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){

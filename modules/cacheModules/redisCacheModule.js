@@ -1,11 +1,28 @@
 var cacheModule = require('./cacheModule');
 var redis = require('redis');
 
+/**
+ * redisCacheModule constructor
+ * @constructor
+ * @param config: {
+ *    type:                 {string | 'redis-standalone'}
+ *    verbose:              {bool | false},
+ *    expiration:           {integer | 900},
+ *    readOnly:             {boolean | false},
+ *    checkOnPreviousEmpty  {bool | true},
+ *    redisData:            {object},
+ *    redisUrl:             {string},
+ *    redisEnv:             {string}
+ * }
+ */
 function redisCacheModule(config){
 
   config = config || {};
   this.cache = new cacheModule(config);
 
+  /**
+   * Initialize redisCacheModule given the provided constructor params
+   */
   this.cache.init = function(){
     this.type = config.type || 'redis-standalone';
     if(config.redisMock){
@@ -51,6 +68,12 @@ function redisCacheModule(config){
     }
   }
 
+  /**
+   * Get the value associated with a given key
+   * @param {string} key
+   * @param {function} cb
+   * @param {string} cleanKey
+   */
   this.cache.get = function(key, cb, cleanKey){
     try {
       cacheKey = (cleanKey) ? cleanKey : key;
@@ -68,6 +91,12 @@ function redisCacheModule(config){
     }
   }
 
+  /**
+   * Get multiple values given multiple keys
+   * @param {array} keys
+   * @param {function} cb
+   * @param {integer} index
+   */
   this.cache.mget = function(keys, cb, index){
     this.log(false, 'Attempting to mget keys:', {keys: keys});
     this.db.mget(keys, function (err, response){
@@ -86,6 +115,13 @@ function redisCacheModule(config){
     });
   }
 
+  /**
+   * Associate a key and value and optionally set an expiration
+   * @param {string} key
+   * @param {string | object} value
+   * @param {integer} expiration
+   * @param {function} cb
+   */
   this.cache.set = function(key, value, expiration, cb){
     try {
       if(!this.readOnly){
@@ -105,6 +141,12 @@ function redisCacheModule(config){
     }
   }
 
+  /**
+   * Associate multiple keys with multiple values and optionally set expirations per function and/or key
+   * @param {object} obj
+   * @param {integer} expiration
+   * @param {function} cb
+   */
   this.cache.mset = function(obj, expiration, cb){
     this.log(false, 'Attempting to msetex data:', {data: obj});
     var multi = this.db.multi();
@@ -129,6 +171,10 @@ function redisCacheModule(config){
     });
   }
   
+  /**
+   * Flush all keys and values from all configured caches in cacheCollection
+   * @param {function} cb
+   */
   this.cache.flushAll = function(cb){
     try {
       this.db.flushall();
