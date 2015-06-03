@@ -230,9 +230,11 @@ Delete a key or an array of keys and their associated values.
 * err: type: object
 * count: type: int
 
-## .flush()
+## .flush(cb)
 
 Flush all keys and values from an instance of cache-service.
+
+* callback: type: function
 
 # Standalone Cache Module Usage
 
@@ -289,7 +291,43 @@ var cacheService = new cs({}, [
 
 # Cache Module Interface
 
-Documentation coming soon.
+Any cache can be used with cache-service as long as it follows the cacheModule interface. Whether you'd like to wrap your own cache for your app or make a pull request to add another cache type to this repo, your cache wrapper should follow the instructions below.
+
+## Properties
+
+Your cache wrapper must define the following top-level properties. Detailed descriptions for each of these can be found in the [Cache Module Configuration Object](#cache-module-configuration-object) documentation.
+
+#### type
+#### verbose
+#### defaultExpiration
+
+## Functions
+
+Your cache wrapper must define any of the following top-level functions you plan to use. Detailed descriptions for each of these can be found in the [API](#api) documentation.
+
+#### .get()
+#### .mget()
+#### .set()
+#### .mset()
+#### .del()
+#### .flush()
+
+## Usage
+
+Once your cache meets the requirements listed above, you can follow the [Require, Instantiate, and Inject](#require-instantiate-and-inject) instructions to use it directly, or you can submit a [pull request](#pull-requests). Once your pull request is merged, you'll be able to have cache-service instantiate your cacheModule by simply passing the appropriate object into your [Cache Module Configuration Object](#cache-module-configuration-object).
+
+## More Help
+
+If this explanation doesn't cut it for you, have a look at [/modules/cacheModules/cacheModule.js](https://github.com/jpodwys/cache-service/blob/master/modules/cacheModules/cacheModule.js) and [/modules/cacheModules/nodeCacheModule.js](https://github.com/jpodwys/cache-service/blob/master/modules/cacheModules/nodeCacheModule.js) to see how I'm doing it.
+
+# Pull Requests
+
+To make a pull request to this repo, please
+
+* Fork this repo
+* Add your feature or bug fix
+* Add comprehensive unit tests in my [test folder](https://github.com/jpodwys/cache-service/tree/master/test/server)
+* Tag me (@jpodwys) and submit
 
 # Roadmap to 1.0.0
 
@@ -299,6 +337,6 @@ Documentation coming soon.
 * ~~Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule~~ (decided against this so standalone redisCacheModule usage is more robust)
 * ~~Add thorough comments to the code~~
 * ~~Fix inconsistent indentation in the files found in the cacheModules folder~~
+* ~~Add cache module interface documentation and examples~~
+* ~~Simplify `cacheCollection` by removing `postApi` and `preApi` properties (These are only present for a feature planned for superagent-cache. I plan to add that feature directly to superagent-cache with not official support for it in cache-service.)~~
 * Look into upgrading from mock-redis-client to redis-js or fakeredis (I submitted a PR to redis-js and an issue to fakeredis. Will do more when one of them is merged/fixed.)
-* Add cache module interface documentation and examples
-* Simplify `cacheCollection` by removing `postApi` and `preApi` properties (These are only present for a feature planned for superagent-cache. I plan to add that feature directly to superagent-cache with not official support for it in cache-service.)
