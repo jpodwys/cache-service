@@ -26,16 +26,16 @@ var nodeCacheModule = require('./cacheModules/nodeCacheModule');
  * ]
  */
 function cacheCollection(settings, cacheModuleConfig){
-	var self = this;
+  var self = this;
   self.nameSpace = settings.nameSpace;
   self.verbose = settings.verbose;
-	self.supportedCaches = ['redis', 'node-cache', 'custom'];
+  self.supportedCaches = ['redis', 'node-cache', 'custom'];
 
   /**
    * Initialize cacheCollection given the provided constructor params
    */
-	function init(){
-		if(cacheModuleConfig && !isEmpty(cacheModuleConfig)){
+  function init(){
+    if(cacheModuleConfig && !isEmpty(cacheModuleConfig)){
       self.cacheModuleConfig = cacheModuleConfig;
     }
     else{
@@ -69,14 +69,14 @@ function cacheCollection(settings, cacheModuleConfig){
     if(self.preApi.length < 1){
       throw new exception('NoCacheException', 'No pre-api caches were succesfully initialized.');
     }
-	}
+  }
 
   /**
    * Ensures that the provided constructor params will result in a succesful caching configuration
    * @param {object} cacheConfig
    * @return {object} cacheConfig
    */
-	function validateCacheConfig(cacheConfig){
+  function validateCacheConfig(cacheConfig){
     if(!cacheConfig.type || self.supportedCaches.indexOf(cacheConfig.type) < 0){
       throw new exception('BadCacheTypeException', 'You either did not set a cache type or you spelled it wrong.');
     }
@@ -106,7 +106,7 @@ function cacheCollection(settings, cacheModuleConfig){
    * @param {object | string | null | undefined} val
    * @return {boolean}
    */
-	function isEmpty (val) {
+  function isEmpty (val) {
     return (val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
   }
 
@@ -135,7 +135,7 @@ function cacheCollection(settings, cacheModuleConfig){
     }
   }
 
-	init();
+  init();
 }
 
 module.exports = cacheCollection;
