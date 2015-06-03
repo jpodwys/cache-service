@@ -6,10 +6,10 @@ var redis = require('redis');
  * @constructor
  * @param config: {
  *    type:                 {string | 'redis-standalone'}
- *    verbose:              {bool | false},
+ *    verbose:              {boolean | false},
  *    expiration:           {integer | 900},
  *    readOnly:             {boolean | false},
- *    checkOnPreviousEmpty  {bool | true},
+ *    checkOnPreviousEmpty  {boolean | true},
  *    redisData:            {object},
  *    redisUrl:             {string},
  *    redisEnv:             {string}

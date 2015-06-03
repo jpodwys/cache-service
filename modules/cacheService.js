@@ -5,15 +5,15 @@ var cacheCollection = require('./cacheCollection');
  * @constructor
  * @param cacheServiceConfig: {
  *   nameSpace:               {string | ''},
- *   verbose:                 {bool | false},
- *   writeToVolatileCaches:   {bool | true}
+ *   verbose:                 {boolean | false},
+ *   writeToVolatileCaches:   {boolean | true}
  * }
  * @param cacheModuleConfig: [
  *    {
  *      type:                 {string},
  *      defaultExpiration:    {integer | 900},
- *      cacheWhenEmpty:       {bool | true},
- *      checkOnPreviousEmpty  {bool | true},
+ *      cacheWhenEmpty:       {boolean | true},
+ *      checkOnPreviousEmpty  {boolean | true},
  *      redisUrl:             {string},
  *      redisEnv:             {string},
  *      redisData: {

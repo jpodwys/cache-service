@@ -7,14 +7,14 @@ var nodeCacheModule = require('./cacheModules/nodeCacheModule');
  * @constructor
  * @param settings: {
  *   nameSpace:               {string | ''},
- *   verbose:                 {bool | false}
+ *   verbose:                 {boolean | false}
  * }
  * @param cacheModuleConfig: [
  *    {
  *      type:                 {string},
  *      defaultExpiration:    {integer | 900},
- *      cacheWhenEmpty:       {bool | true},
- *      checkOnPreviousEmpty  {bool | true},
+ *      cacheWhenEmpty:       {boolean | true},
+ *      checkOnPreviousEmpty  {boolean | true},
  *      redisUrl:             {string},
  *      redisEnv:             {string},
  *      redisData: {

@@ -2,10 +2,10 @@
  * cacheModule constructor
  * @constructor
  * @param config: {
- *    verbose:              {bool | false},
+ *    verbose:              {boolean | false},
  *    expiration:           {integer | 900},
  *    readOnly:             {boolean | false},
- *    checkOnPreviousEmpty  {bool | true}
+ *    checkOnPreviousEmpty  {boolean | true}
  * }
  */
 function cacheModule(config){

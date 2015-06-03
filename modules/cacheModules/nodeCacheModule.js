@@ -6,10 +6,10 @@ var nodeCache = require('node-cache');
  * @constructor
  * @param config: {
  *    type:                 {string | 'node-cache-standalone'}
- *    verbose:              {bool | false},
+ *    verbose:              {boolean | false},
  *    expiration:           {integer | 900},
  *    readOnly:             {boolean | false},
- *    checkOnPreviousEmpty  {bool | true}
+ *    checkOnPreviousEmpty  {boolean | true}
  * }
  */
 function nodeCacheModule(config){
