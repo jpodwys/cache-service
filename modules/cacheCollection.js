@@ -2,14 +2,40 @@ var cacheModule = require('./cacheModules/cacheModule');
 var redisCacheModule = require('./cacheModules/redisCacheModule');
 var nodeCacheModule = require('./cacheModules/nodeCacheModule');
 
+/**
+ * cacheCollection constructor
+ * @constructor
+ * @param settings: {
+ *   nameSpace:               {string | ''},
+ *   verbose:                 {boolean | false}
+ * }
+ * @param cacheModuleConfig: [
+ *    {
+ *      type:                 {string},
+ *      defaultExpiration:    {integer | 900},
+ *      cacheWhenEmpty:       {boolean | true},
+ *      checkOnPreviousEmpty  {boolean | true},
+ *      redisUrl:             {string},
+ *      redisEnv:             {string},
+ *      redisData: {
+ *        port:       {integer},
+ *        hostName:   {string},
+ *        auth:       {string}
+ *      }
+ *    }
+ * ]
+ */
 function cacheCollection(settings, cacheModuleConfig){
-	var self = this;
+  var self = this;
   self.nameSpace = settings.nameSpace;
   self.verbose = settings.verbose;
-	self.supportedCaches = ['redis', 'node-cache', 'custom'];
+  self.supportedCaches = ['redis', 'node-cache', 'custom'];
 
-	self.init = function(){
-		if(cacheModuleConfig && !isEmpty(cacheModuleConfig)){
+  /**
+   * Initialize cacheCollection given the provided constructor params
+   */
+  function init(){
+    if(cacheModuleConfig && !isEmpty(cacheModuleConfig)){
       self.cacheModuleConfig = cacheModuleConfig;
     }
     else{
@@ -28,7 +54,7 @@ function cacheCollection(settings, cacheModuleConfig){
         try {
           cache = getCacheModule(cacheConfig).cache;
         } catch (err) {
-          self.log(true, 'Failed to get requested cache module with config ' + JSON.stringify(cacheConfig) + ' :', err);
+          log(true, 'Failed to get requested cache module with config ' + JSON.stringify(cacheConfig) + ' :', err);
         }
         if(cache && cache.db){
           var preOrPostApi = (!cacheConfig.postApi) ? 'preApi' : 'postApi';
@@ -43,17 +69,14 @@ function cacheCollection(settings, cacheModuleConfig){
     if(self.preApi.length < 1){
       throw new exception('NoCacheException', 'No pre-api caches were succesfully initialized.');
     }
-	}
-
-  self.log = function (isError, message, data){
-    var indentifier = 'cacheService: ';
-    if(self.verbose || isError){
-      if(data) console.log(indentifier + message, data);
-      else console.log(indentifier + message);
-    }
   }
 
-	function validateCacheConfig(cacheConfig){
+  /**
+   * Ensures that the provided constructor params will result in a succesful caching configuration
+   * @param {object} cacheConfig
+   * @return {object} cacheConfig
+   */
+  function validateCacheConfig(cacheConfig){
     if(!cacheConfig.type || self.supportedCaches.indexOf(cacheConfig.type) < 0){
       throw new exception('BadCacheTypeException', 'You either did not set a cache type or you spelled it wrong.');
     }
@@ -64,6 +87,11 @@ function cacheCollection(settings, cacheModuleConfig){
     return cacheConfig;
   }
 
+  /**
+   * Instantiates a cacheModule given a config object
+   * @param {object} cacheConfig
+   * @return {cacheModule}
+   */
   function getCacheModule(cacheConfig){
     if(cacheConfig.type === 'redis'){
       return new redisCacheModule(cacheConfig);
@@ -73,16 +101,41 @@ function cacheCollection(settings, cacheModuleConfig){
     }
   }
 
-	function isEmpty (val) {
+  /**
+   * Checks if a value is "empty"
+   * @param {object | string | null | undefined} val
+   * @return {boolean}
+   */
+  function isEmpty (val) {
     return (val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
   }
 
+  /**
+   * Instantates an exception to be thrown
+   * @param {string} name
+   * @param {string} message
+   * @return {exception}
+   */
   function exception(name, message){
     this.name = name;
     this.message = message;
   }
 
-	self.init();
+  /**
+   * Logging utility function
+   * @param {boolean} isError
+   * @param {string} message
+   * @param {object} data
+   */
+  function log(isError, message, data){
+    var indentifier = 'cacheService: ';
+    if(self.verbose || isError){
+      if(data) console.log(indentifier + message, data);
+      else console.log(indentifier + message);
+    }
+  }
+
+  init();
 }
 
 module.exports = cacheCollection;
