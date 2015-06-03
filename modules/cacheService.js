@@ -10,11 +10,12 @@ var cacheCollection = require('./cacheCollection');
  * }
  * @param cacheModuleConfig: [
  *    {
- *      type:               {string},
- *      defaultExpiration:  {integer | 900},
- *      cacheWhenEmpty:     {bool | true},
- *      redisUrl:           {string},
- *      redisEnv:           {string},
+ *      type:                 {string},
+ *      defaultExpiration:    {integer | 900},
+ *      cacheWhenEmpty:       {bool | true},
+ *      checkOnPreviousEmpty  {bool | true},
+ *      redisUrl:             {string},
+ *      redisEnv:             {string},
  *      redisData: {
  *        port:       {integer},
  *        hostName:   {string},
@@ -224,11 +225,11 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
   /**
    * Flush all keys and values from all configured caches in cacheCollection
    */
-  self.flush = function(){
+  self.flush = function(cb){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       var cache = self.cacheCollection.preApi[i];
       if(i === self.cacheCollection.preApi.length - 1){
-        cache.flushAll();
+        cache.flushAll(cb);
       }
       else{
         cache.flushAll();
@@ -237,7 +238,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     for(var i = 0; i < self.cacheCollection.postApi.length; i++){
       var cache = self.cacheCollection.postApi[i];
       if(i === self.cacheCollection.postApi.length - 1){
-        cache.flushAll();
+        cache.flushAll(cb);
       }
       else{
         cache.flushAll();

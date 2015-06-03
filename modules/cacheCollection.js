@@ -11,11 +11,12 @@ var nodeCacheModule = require('./cacheModules/nodeCacheModule');
  * }
  * @param cacheModuleConfig: [
  *    {
- *      type:               {string},
- *      defaultExpiration:  {integer | 900},
- *      cacheWhenEmpty:     {bool | true},
- *      redisUrl:           {string},
- *      redisEnv:           {string},
+ *      type:                 {string},
+ *      defaultExpiration:    {integer | 900},
+ *      cacheWhenEmpty:       {bool | true},
+ *      checkOnPreviousEmpty  {bool | true},
+ *      redisUrl:             {string},
+ *      redisEnv:             {string},
  *      redisData: {
  *        port:       {integer},
  *        hostName:   {string},
