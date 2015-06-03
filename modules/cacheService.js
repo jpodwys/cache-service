@@ -1,24 +1,48 @@
 var cacheCollection = require('./cacheCollection');
 
+/**
+ * cacheService constructor
+ * @constructor
+ * @param cacheServiceConfig: {
+ *   nameSpace:               {string | ''},
+ *   verbose:                 {bool | false},
+ *   writeToVolatileCaches:   {bool | true}
+ * }
+ * @param cacheModuleConfig: [
+ *    {
+ *      type:               {string},
+ *      defaultExpiration:  {integer | 900},
+ *      cacheWhenEmpty:     {bool | true},
+ *      redisUrl:           {string},
+ *      redisEnv:           {string},
+ *      redisData: {
+ *        port:       {integer},
+ *        hostName:   {string},
+ *        auth:       {string}
+ *      }
+ *    }
+ * ]
+ */
 function cacheService(cacheServiceConfig, cacheModuleConfig) {
   var self = this;
 
-  self.init = function(){
-    if(!cacheServiceConfig) cacheServiceConfig = {};
-    self.nameSpace = cacheServiceConfig.nameSpace || '';
-    self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
-    self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig);
-  }
+  /**
+   ******************************************* PUBLIC FUNCTIONS *******************************************
+   */
 
+  /**
+   * Get the value associated with a given key
+   * @param {string} key
+   * @param {function} cb
+   */
   self.get = function(key, cb){
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
     }
-    self.log(false, 'get() called for key:', {key: key});
+    log(false, 'get() called for key:', {key: key});
     var curCache;
     var curCacheIndex = 0;
-    var cacheGetCallback = function(err, result){
+    var callback = function(err, result){
       var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex - 1);
       if(status.status === 'continue'){
         if(status.toIndex){
@@ -34,24 +58,29 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         }
       }
       else {
-        self.log(false, 'get() key not found:', {key: key});
+        log(false, 'get() key not found:', {key: key});
         cb(null, null);
       }
     }
     function getNextCache(){
       if(curCacheIndex < self.cacheCollection.preApi.length){
         curCache = self.cacheCollection.preApi[curCacheIndex++];
-        curCache.get(key, cacheGetCallback);
+        curCache.get(key, callback);
       }
     }
     getNextCache();
   }
 
+  /**
+   * Get multiple values given multiple keys
+   * @param {array} keys
+   * @param {function} cb
+   */
   self.mget = function(keys, cb){
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mget() requires 2 arguments.');
     }
-    self.log(false, 'MGetting keys:', {keys: keys});
+    log(false, 'MGetting keys:', {keys: keys});
     var maxKeysFound = 0;
     var returnError = null;
     var returnResponse = null;
@@ -67,7 +96,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cb(returnError, returnResponse);
       }
     }
-    var cacheMgetCallback = function(err, response, index){
+    var callback = function(err, response, index){
       var objectSize = 0;
       for(key in response){
         if(response.hasOwnProperty(key)){
@@ -90,11 +119,18 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     }
     while(keepGoing && i < self.cacheCollection.preApi.length){
       var cache = self.cacheCollection.preApi[i];
-      cache.mget(keys, cacheMgetCallback, i);
+      cache.mget(keys, callback, i);
       i++;
     }
   }
 
+  /**
+   * Associate a key and value and optionally set an expiration
+   * @param {string} key
+   * @param {string | object} value
+   * @param {integer} expiration
+   * @param {function} cb
+   */
   self.set = function(key, value, expiration, cb){
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
@@ -117,9 +153,15 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cache.set(key, value, expiration); 
       }
     }
-    self.log(false, 'Setting key and value:', {key: key, value: value});
+    log(false, 'Setting key and value:', {key: key, value: value});
   }
 
+  /**
+   * Associate multiple keys with multiple values and optionally set expirations per function and/or key
+   * @param {object} arguments[0]
+   * @param {integer} arguments[1]
+   * @param {function} arguments[2]
+   */
   self.mset = function(){
     if(arguments.length < 1){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mset() requires a minimum of 1 argument.');
@@ -146,9 +188,14 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cache.mset(obj, expiration);
       }
     }
-    self.log(false, 'MSetting obj:', {obj: obj});
+    log(false, 'MSetting obj:', {obj: obj});
   }
 
+  /**
+   * Delete a list of keys and their values
+   * @param {array} keys
+   * @param {function} cb
+   */
   self.del = function(keys, cb){
     if(arguments.length < 1){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
@@ -171,9 +218,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cache.del(keys);
       }
     }
-    self.log(false, 'Deleting keys:', {keys: keys}); 
+    log(false, 'Deleting keys:', {keys: keys}); 
   }
 
+  /**
+   * Flush all keys and values from all configured caches in cacheCollection
+   */
   self.flush = function(){
     for(var i = 0; i < self.cacheCollection.preApi.length; i++){
       var cache = self.cacheCollection.preApi[i];
@@ -193,27 +243,43 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         cache.flushAll();
       }
     }
-    self.log(false, 'Flushing all data');
+    log(false, 'Flushing all data');
   }
 
-  self.log = function (isError, message, data){
-    var indentifier = 'cacheService: ';
-    if(self.verbose || isError){
-      if(data) console.log(indentifier + message, data);
-      else console.log(indentifier + message);
-    }
+  /**
+   ******************************************* PRIVATE FUNCTIONS *******************************************
+   */
+
+  /**
+   * Initialize cacheService given the provided constructor params
+   */
+  function init(){
+    if(!cacheServiceConfig) cacheServiceConfig = {};
+    self.nameSpace = cacheServiceConfig.nameSpace || '';
+    self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
+    self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
+    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig);
   }
 
+  /**
+   * Decides what action cacheService should take given the response from a configured cache
+   * @param {string} key
+   * @param {null | object} err
+   * @param {null | object | string} result
+   * @param {string} type
+   * @param {boolean} isPostApi
+   * @param {integer} cacheIndex
+   */
   function checkCacheResponse(key, err, result, type, isPostApi, cacheIndex){
     if(err){
-      self.log(true, 'Error when getting key ' + key + ' from cache with type ' + type + ':', err);
+      log(true, 'Error when getting key ' + key + ' from cache with type ' + type + ':', err);
       if(i < self.cacheCollection.preApi.length - 1){
         return {status:'continue'};
       }
     }
     //THIS ALLOWS false AS A VALID CACHE VALUE, BUT DO I WANT null TO BE VALID AS WELL?
     if(result !== null && typeof result !== 'undefined'){
-      self.log(false, 'Key found:', {key: key, value: result});
+      log(false, 'Key found:', {key: key, value: result});
       return {status: 'break', result: result};
     }
     if(!isPostApi){
@@ -228,6 +294,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     return {status: 'else'};
   }
 
+  /**
+   * Writes data to caches that appear before the current cache in cacheCollection
+   * @param {integer} currentCacheIndex
+   * @param {string} key
+   * @param {null | object | string} value
+   */
   function writeToVolatileCaches(currentCacheIndex, key, value){
     if(currentCacheIndex > 0){
       var curExpiration = self.cacheCollection.preApi[currentCacheIndex].expiration;
@@ -246,12 +318,32 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     }
   }
 
+  /**
+   * Instantates an exception to be thrown
+   * @param {string} name
+   * @param {string} message
+   * @return {exception}
+   */
   function exception(name, message){
     this.name = name;
     this.message = message;
   }
 
-  self.init();
+  /**
+   * Logging utility function
+   * @param {boolean} isError
+   * @param {string} message
+   * @param {object} data
+   */
+  function log(isError, message, data){
+    var indentifier = 'cacheService: ';
+    if(self.verbose || isError){
+      if(data) console.log(indentifier + message, data);
+      else console.log(indentifier + message);
+    }
+  }
+
+  init();
 }
 
 module.exports = cacheService;
