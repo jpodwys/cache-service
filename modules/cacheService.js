@@ -44,7 +44,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     var curCache;
     var curCacheIndex = 0;
     var callback = function(err, result){
-      var status = checkCacheResponse(key, err, result, curCache.type, curCache.postApi, curCacheIndex - 1);
+      var status = checkCacheResponse(key, err, result, curCache.type, curCacheIndex - 1);
       if(status.status === 'continue'){
         if(status.toIndex){
           curCacheIndex = status.toIndex;
@@ -64,8 +64,8 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       }
     }
     function getNextCache(){
-      if(curCacheIndex < self.cacheCollection.preApi.length){
-        curCache = self.cacheCollection.preApi[curCacheIndex++];
+      if(curCacheIndex < self.cacheCollection.length){
+        curCache = self.cacheCollection[curCacheIndex++];
         curCache.get(key, callback);
       }
     }
@@ -113,13 +113,13 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
         returnResponse = response;
         successIndex = index;
       }
-      if(index + 1 === self.cacheCollection.preApi.length){
+      if(index + 1 === self.cacheCollection.length){
         returnResponse = response;
         finish(successIndex);
       }
     }
-    while(keepGoing && i < self.cacheCollection.preApi.length){
-      var cache = self.cacheCollection.preApi[i];
+    while(keepGoing && i < self.cacheCollection.length){
+      var cache = self.cacheCollection[i];
       cache.mget(keys, callback, i);
       i++;
     }
@@ -136,17 +136,8 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
-    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      var cache = self.cacheCollection.preApi[i];
-      if(i === 0){
-        cache.set(key, value, expiration, cb);
-      }
-      else{
-        cache.set(key, value, expiration); 
-      }
-    }
-    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      var cache = self.cacheCollection.postApi[i];
+    for(var i = 0; i < self.cacheCollection.length; i++){
+      var cache = self.cacheCollection[i];
       if(i === 0){
         cache.set(key, value, expiration, cb);
       }
@@ -170,19 +161,10 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     var obj = arguments[0];
     var expiration = arguments[1] || null;
     var cb = arguments[2] || null;
-    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      var cache = self.cacheCollection.preApi[i];
+    for(var i = 0; i < self.cacheCollection.length; i++){
+      var cache = self.cacheCollection[i];
       expiration = expiration || cache.expiration;
-      if(i === self.cacheCollection.preApi.length - 1){
-        cache.mset(obj, expiration, cb);
-      }
-      else{
-        cache.mset(obj, expiration);
-      }
-    }
-    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      var cache = self.cacheCollection.postApi[i];
-      if(i === self.cacheCollection.postApi.length - 1){
+      if(i === self.cacheCollection.length - 1){
         cache.mset(obj, expiration, cb);
       }
       else{
@@ -201,18 +183,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     if(arguments.length < 1){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
-    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      var cache = self.cacheCollection.preApi[i];
-      if(i === self.cacheCollection.preApi.length - 1){
-        cache.del(keys, cb);
-      }
-      else{
-        cache.del(keys);
-      }
-    }
-    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      cache = self.cacheCollection.postApi[i];
-      if(i === self.cacheCollection.postApi.length - 1){
+    for(var i = 0; i < self.cacheCollection.length; i++){
+      var cache = self.cacheCollection[i];
+      if(i === self.cacheCollection.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -227,18 +200,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
    * @param {function} cb
    */
   self.flush = function(cb){
-    for(var i = 0; i < self.cacheCollection.preApi.length; i++){
-      var cache = self.cacheCollection.preApi[i];
-      if(i === self.cacheCollection.preApi.length - 1){
-        cache.flushAll(cb);
-      }
-      else{
-        cache.flushAll();
-      }
-    }
-    for(var i = 0; i < self.cacheCollection.postApi.length; i++){
-      var cache = self.cacheCollection.postApi[i];
-      if(i === self.cacheCollection.postApi.length - 1){
+    for(var i = 0; i < self.cacheCollection.length; i++){
+      var cache = self.cacheCollection[i];
+      if(i === self.cacheCollection.length - 1){
         cache.flushAll(cb);
       }
       else{
@@ -260,7 +224,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig);
+    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig).caches;
   }
 
   /**
@@ -269,13 +233,12 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
    * @param {null | object} err
    * @param {null | object | string} result
    * @param {string} type
-   * @param {boolean} isPostApi
    * @param {integer} cacheIndex
    */
-  function checkCacheResponse(key, err, result, type, isPostApi, cacheIndex){
+  function checkCacheResponse(key, err, result, type, cacheIndex){
     if(err){
       log(true, 'Error when getting key ' + key + ' from cache with type ' + type + ':', err);
-      if(i < self.cacheCollection.preApi.length - 1){
+      if(i < self.cacheCollection.length - 1){
         return {status:'continue'};
       }
     }
@@ -284,13 +247,11 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       log(false, 'Key found:', {key: key, value: result});
       return {status: 'break', result: result};
     }
-    if(!isPostApi){
-      var curCache = self.cacheCollection.preApi[cacheIndex];
-      for(var i = cacheIndex + 1; i < self.cacheCollection.preApi.length; i++){
-        var nextCache = self.cacheCollection.preApi[i];
-        if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
-          return {status:'continue', toIndex: i};
-        }
+    var curCache = self.cacheCollection[cacheIndex];
+    for(var i = cacheIndex + 1; i < self.cacheCollection.length; i++){
+      var nextCache = self.cacheCollection[i];
+      if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
+        return {status:'continue', toIndex: i};
       }
     }
     return {status: 'else'};
@@ -304,11 +265,11 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
    */
   function writeToVolatileCaches(currentCacheIndex, key, value){
     if(currentCacheIndex > 0){
-      var curExpiration = self.cacheCollection.preApi[currentCacheIndex].expiration;
+      var curExpiration = self.cacheCollection[currentCacheIndex].expiration;
       for(var tempIndex = currentCacheIndex; tempIndex > -1; tempIndex--){
-        var preExpiration = self.cacheCollection.preApi[tempIndex].expiration;
+        var preExpiration = self.cacheCollection[tempIndex].expiration;
         if(preExpiration <= curExpiration){
-          var preCache = self.cacheCollection.preApi[currentCacheIndex];
+          var preCache = self.cacheCollection[currentCacheIndex];
           if(value){
             preCache.set(key, value); /*This means that a more volatile cache can have a key longer than a less volatile cache. Should I adjust this?*/
           }
