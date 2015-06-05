@@ -2,7 +2,7 @@
 
 A tiered caching solution for node.
 
-If you are upgrading to 1.0.0, please see the [Breaking Change in 1.0.0](breaking-change-in-1.0.0) section.
+If you are upgrading to 1.0.0, please see the [Breaking Change in 1.0.0](#breaking-change-in-100) section.
 
 If you use superagent from node, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
 
