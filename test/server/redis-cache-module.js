@@ -1,7 +1,8 @@
 var expect = require('expect');
-var rMock = require('mock-redis-client').createMockRedis();
+var redisMock = require('redis-js');
+//var rMock = require('mock-redis-client').createMockRedis();
 var rcModule = require('../../modules/cacheModules/redisCacheModule');
-var redisMock = rMock.createClient();
+//var redisMock = rMock.createClient();
 var redisCache = new rcModule({redisMock: redisMock}).cache;
 
 var key = 'key';

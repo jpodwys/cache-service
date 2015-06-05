@@ -1,6 +1,8 @@
 # cache-service
 
-A multi-tiered caching solution for node.
+A tiered caching solution for node.
+
+If you are upgrading to 1.0.0, please see the [Breaking Change in 1.0.0](breaking-change-in-1.0.0) section.
 
 If you use superagent from node, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
 
@@ -329,14 +331,6 @@ To make a pull request to this repo, please
 * Add comprehensive unit tests in my [test folder](https://github.com/jpodwys/cache-service/tree/master/test/server)
 * Tag me (@jpodwys) and submit
 
-# Roadmap to 1.0.0
+# Breaking Change in 1.0.0
 
-* ~~Add standalone cache usage documentation and examples~~
-* ~~Add `.mget()` and `.mset()` functions~~
-* ~~Upgrade from redis-mock to mock-redis-client~~ (My PRs were merged for it and its dependency.)
-* ~~Make `.mset()` and `.mget()` provide the same callback params from both redisCacheModule and nodeCacheModule~~ (decided against this so standalone redisCacheModule usage is more robust)
-* ~~Add thorough comments to the code~~
-* ~~Fix inconsistent indentation in the files found in the cacheModules folder~~
-* ~~Add cache module interface documentation and examples~~
-* ~~Simplify `cacheCollection` by removing `postApi` and `preApi` properties (These are only present for a feature planned for superagent-cache. I plan to add that feature directly to superagent-cache with not official support for it in cache-service.)~~
-* Look into upgrading from mock-redis-client to redis-js or fakeredis (I submitted a PR to redis-js and an issue to fakeredis. Will do more when one of them is merged/fixed.)
+cache-service stores its caches in a top-level property called `cacheCollection`. Older versions of `cacheCollection` contained two arrays (`preApi` and `postApi`). In version 1.0.0, `cacheCollection` has been simplified by eliminating its `preApi` and `postApi` properties. This means that if you have any advanced references such as `cacheService.cacheCollection.preApi[0]`, you can simplify them to `cacheService.cacheCollection[0]`.

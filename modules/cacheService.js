@@ -93,7 +93,9 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
       if(!finished){
         finished = true;
         keepGoing = false;
-        writeToVolatileCaches(index, returnResponse);
+        if(self.writeToVolatileCaches){
+          writeToVolatileCaches(index, returnResponse);
+        }
         cb(returnError, returnResponse);
       }
     }

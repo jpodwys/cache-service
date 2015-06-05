@@ -1,20 +1,11 @@
-// Possible better redis mocks to use in the future
-// "redis-js": "0.0.12-3"
-// var redisMock = require('redis-js');
-// "fakeredis": "0.3.1"
-// var redisMock = require("fakeredis").createClient();
-
 var expect = require('expect');
 var cs = require('../../modules/cacheService');
-var rMock = require('mock-redis-client').createMockRedis();
 var rcModule = require('../../modules/cacheModules/redisCacheModule');
-var redisMock = rMock.createClient();
+var redisMock = require('redis-js');
 var redisCache = new rcModule({redisMock: redisMock}).cache;
-var cacheService = new cs({}, [
+var cacheService = new cs({writeToVolatileCaches: false}, [
   {type: 'custom', cache: redisCache},
   {type: 'node-cache', defaultExpiration: 1600}
-  //{type: 'custom', cache: redisCache, defaultExpiration: 1800}
-  //{type: 'node-cache', defaultExpiration: 1800}
 ]);
 
 var key = 'key';
@@ -33,14 +24,13 @@ describe('cachService API tests', function () {
     });
   });
   it('.set(k, v, exp), .get(k)', function (done) {
-    this.timeout(5000);
-    cacheService.set(key, value, 1);
+    cacheService.set(key, value, 0.0001);
     setTimeout(function(){
       cacheService.get(key, function (err, response){
         expect(response).toBe(null);
         done();
       });
-    }, 2100);
+    }, 10);
   });
 
   it('.mset(obj), .mget(array) (exact key match)', function (done) {
@@ -65,8 +55,7 @@ describe('cachService API tests', function () {
   });
 
   it('.mset(obj, exp), .mget(array)', function (done) {
-    this.timeout(5000);
-    cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'}, 1);
+    cacheService.mset({key: value, 'key2': 'value2', 'key3': 'value3'}, 0.0001);
     setTimeout(function(){
       cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
         expect(response.key).toBe(undefined);
@@ -75,12 +64,11 @@ describe('cachService API tests', function () {
         expect(response.key4).toBe(undefined);
         done();
       });
-    }, 2100);
+    }, 10);
   });
 
   it('.mset(obj with expirations, exp), .mget(array) (exact key match)', function (done) {
-    this.timeout(5000);
-    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 3}, 'key3': 'value3'}, 1);
+    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 3}, 'key3': 'value3'}, 0.0001);
     setTimeout(function(){
       cacheService.mget([key, 'key2', 'key3'], function (err, response){
         expect(response.key).toBe(undefined);
@@ -89,12 +77,12 @@ describe('cachService API tests', function () {
         expect(response.key4).toBe(undefined);
         done();
       });
-    }, 2100);
+    }, 10);
   });
 
   it('.mset(obj with expirations, exp), .mget(array) (not exact key match)', function (done) {
-    this.timeout(5000);
-    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 3}, 'key3': 'value3'}, 1);
+    this.timeout(10000);
+    cacheService.mset({key: value, 'key2': {cacheValue: 'value2', expiration: 0.02}, 'key3': 'value3'}, 0.0001);
     setTimeout(function(){
       cacheService.mget([key, 'key2', 'key3', 'key4'], function (err, response){
         expect(response.key).toBe(undefined);
@@ -106,10 +94,9 @@ describe('cachService API tests', function () {
             expect(response.key2).toBe(undefined);
             done();
           });
-        }, 2100);
-      done();
+        }, 25);
       });
-    }, 2100);
+    }, 10);
   });
 
   it('.del(string)', function (done) {
