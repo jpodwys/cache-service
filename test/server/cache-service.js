@@ -1,11 +1,13 @@
 var expect = require('expect');
 var cs = require('../../modules/cacheService');
+var ncModule = require('../../modules/cacheModules/nodeCacheModule');
+var nodeCache = new ncModule().cache;
 var rcModule = require('../../modules/cacheModules/redisCacheModule');
 var redisMock = require('redis-js');
 var redisCache = new rcModule({redisMock: redisMock}).cache;
 var cacheService = new cs({writeToVolatileCaches: false}, [
-  {type: 'custom', cache: redisCache},
-  {type: 'node-cache', defaultExpiration: 1600}
+  redisCache,
+  nodeCache
 ]);
 
 var key = 'key';
@@ -196,9 +198,11 @@ describe('cachService caching tests', function () {
 });
 
 describe('cachService performance tests (50ms added to all tests)', function () {
+  var a = new ncModule().cache;
+  var b = new ncModule({defaultExpiration: 1600}).cache;
   var speedTest = new cs({}, [
-    {type: 'node-cache'},
-    {type: 'node-cache', defaultExpiration: 1600}
+    a,
+    b
   ]);
 
   var list = {};

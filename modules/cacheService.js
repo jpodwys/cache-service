@@ -8,23 +8,11 @@ var cacheCollection = require('./cacheCollection');
  *   verbose:                 {boolean | false},
  *   writeToVolatileCaches:   {boolean | true}
  * }
- * @param cacheModuleConfig: [
- *    {
- *      type:                 {string},
- *      defaultExpiration:    {integer | 900},
- *      cacheWhenEmpty:       {boolean | true},
- *      checkOnPreviousEmpty  {boolean | true},
- *      redisUrl:             {string},
- *      redisEnv:             {string},
- *      redisData: {
- *        port:       {integer},
- *        hostName:   {string},
- *        auth:       {string}
- *      }
- *    }
+ * @param cacheModules: [
+ *    {cache module object}
  * ]
  */
-function cacheService(cacheServiceConfig, cacheModuleConfig) {
+function cacheService(cacheServiceConfig, cacheModules) {
   var self = this;
 
   /**
@@ -226,7 +214,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModuleConfig).caches;
+    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
   }
 
   /**
@@ -239,7 +227,7 @@ function cacheService(cacheServiceConfig, cacheModuleConfig) {
    */
   function checkCacheResponse(key, err, result, type, cacheIndex){
     if(err){
-      log(true, 'Error when getting key ' + key + ' from cache with type ' + type + ':', err);
+      log(true, 'Error when getting key ' + key + ' from cache of type ' + type + ':', err);
       if(i < self.cacheCollection.length - 1){
         return {status:'continue'};
       }

@@ -1,7 +1,3 @@
-var cacheModule = require('./cacheModules/cacheModule');
-var redisCacheModule = require('./cacheModules/redisCacheModule');
-var nodeCacheModule = require('./cacheModules/nodeCacheModule');
-
 /**
  * cacheCollection constructor
  * @constructor
@@ -9,56 +5,30 @@ var nodeCacheModule = require('./cacheModules/nodeCacheModule');
  *   nameSpace:               {string | ''},
  *   verbose:                 {boolean | false}
  * }
- * @param cacheModuleConfig: [
- *    {
- *      type:                 {string},
- *      defaultExpiration:    {integer | 900},
- *      cacheWhenEmpty:       {boolean | true},
- *      checkOnPreviousEmpty  {boolean | true},
- *      redisUrl:             {string},
- *      redisEnv:             {string},
- *      redisData: {
- *        port:       {integer},
- *        hostName:   {string},
- *        auth:       {string}
- *      }
- *    }
+ * @param cacheModules: [
+ *    {cache module object}
  * ]
  */
-function cacheCollection(settings, cacheModuleConfig){
+function cacheCollection(settings, cacheModules){
   var self = this;
   self.nameSpace = settings.nameSpace;
   self.verbose = settings.verbose;
-  self.supportedCaches = ['redis', 'node-cache', 'custom'];
 
   /**
    * Initialize cacheCollection given the provided constructor params
    */
   function init(){
-    if(cacheModuleConfig && !isEmpty(cacheModuleConfig)){
-      self.cacheModuleConfig = cacheModuleConfig;
-    }
-    else{
-      self.cacheModuleConfig = [{type: 'redis'}, {type: 'node-cache'}];
+    if(!cacheModules || cacheModules.length < 1){
+      throw new exception('NoCacheModulesException', 'No cacheModules object was provided.');
     }
     self.caches = [];
-
-    for(var i = 0; i < self.cacheModuleConfig.length; i++){
-      var cacheConfig = validateCacheConfig(self.cacheModuleConfig[i]);
-      var cache = null;
-      if(cacheConfig.type != 'custom'){
-        try {
-          cache = getCacheModule(cacheConfig).cache;
-        } catch (err) {
-          log(true, 'Failed to get requested cache module with config ' + JSON.stringify(cacheConfig) + ' :', err);
-        }
-        if(cache && cache.db){
-          self.caches.push(cache);
-        }
+    for(var i = 0; i < cacheModules.length; i++){
+      var cacheModule = addConfigProps(cacheModules[i]);
+      if(isEmpty(cacheModule)){
+        log(true, 'Cache module at index ' + i + ' is \'empty\'.');
+        continue;
       }
-      else{
-        self.caches.push(self.cacheModuleConfig[i].cache);
-      }
+      self.caches.push(cacheModule);
     }
     if(self.caches.length < 1){
       throw new exception('NoCacheException', 'No caches were succesfully initialized.');
@@ -66,33 +36,14 @@ function cacheCollection(settings, cacheModuleConfig){
   }
 
   /**
-   * Ensures that the provided constructor params will result in a succesful caching configuration
-   * @param {object} cacheConfig
-   * @return {object} cacheConfig
+   * Adds cache-service config properties to each cache module
+   * @param {object} cacheModule
+   * @return {object} cacheModule
    */
-  function validateCacheConfig(cacheConfig){
-    if(!cacheConfig.type || self.supportedCaches.indexOf(cacheConfig.type) < 0){
-      throw new exception('BadCacheTypeException', 'You either did not set a cache type or you spelled it wrong.');
-    }
-    if(cacheConfig.type != 'custom'){
-      cacheConfig.nameSpace = self.nameSpace;
-      cacheConfig.verbose = self.verbose;
-    }
-    return cacheConfig;
-  }
-
-  /**
-   * Instantiates a cacheModule given a config object
-   * @param {object} cacheConfig
-   * @return {cacheModule}
-   */
-  function getCacheModule(cacheConfig){
-    if(cacheConfig.type === 'redis'){
-      return new redisCacheModule(cacheConfig);
-    }
-    else if(cacheConfig.type === 'node-cache'){
-      return new nodeCacheModule(cacheConfig);
-    }
+  function addConfigProps(cache){
+    cache.nameSpace = self.nameSpace;
+    cache.verbose = self.verbose;
+    return cache;
   }
 
   /**
