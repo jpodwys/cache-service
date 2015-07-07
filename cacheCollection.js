@@ -11,8 +11,6 @@
  */
 function cacheCollection(settings, cacheModules){
   var self = this;
-  self.nameSpace = settings.nameSpace;
-  self.verbose = settings.verbose;
 
   /**
    * Initialize cacheCollection given the provided constructor params
@@ -23,11 +21,12 @@ function cacheCollection(settings, cacheModules){
     }
     self.caches = [];
     for(var i = 0; i < cacheModules.length; i++){
-      var cacheModule = addConfigProps(cacheModules[i]);
+      var cacheModule = cacheModules[i];
       if(isEmpty(cacheModule)){
         log(true, 'Cache module at index ' + i + ' is \'empty\'.');
         continue;
       }
+      cacheModule = addSettings(cacheModule);
       self.caches.push(cacheModule);
     }
     if(self.caches.length < 1){
@@ -40,10 +39,10 @@ function cacheCollection(settings, cacheModules){
    * @param {object} cacheModule
    * @return {object} cacheModule
    */
-  function addConfigProps(cache){
-    cache.nameSpace = self.nameSpace;
-    cache.verbose = self.verbose;
-    return cache;
+  function addSettings(cacheModule){
+    cacheModule.nameSpace = settings.nameSpace;
+    cacheModule.verbose = settings.verbose;
+    return cacheModule;
   }
 
   /**
@@ -52,7 +51,7 @@ function cacheCollection(settings, cacheModules){
    * @return {boolean}
    */
   function isEmpty (val) {
-    return (val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
+    return (val === false || val === null || val === undefined || (typeof val == 'object' && Object.keys(val).length == 0));
   }
 
   /**

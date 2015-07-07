@@ -1,10 +1,10 @@
 var expect = require('expect');
-var cs = require('../../modules/cacheService');
-var ncModule = require('../../modules/cacheModules/nodeCacheModule');
-var nodeCache = new ncModule().cache;
-var rcModule = require('../../modules/cacheModules/redisCacheModule');
+var cs = require('../../cacheService');
+var ncModule = require('cache-service-node-cache');
+var nodeCache = new ncModule();
+var rcModule = require('cache-service-redis');
 var redisMock = require('redis-js');
-var redisCache = new rcModule({redisMock: redisMock}).cache;
+var redisCache = new rcModule({redisMock: redisMock});
 var cacheService = new cs({writeToVolatileCaches: false}, [
   redisCache,
   nodeCache
@@ -198,8 +198,8 @@ describe('cachService caching tests', function () {
 });
 
 describe('cachService performance tests (50ms added to all tests)', function () {
-  var a = new ncModule().cache;
-  var b = new ncModule({defaultExpiration: 1600}).cache;
+  var a = new ncModule();
+  var b = new ncModule({defaultExpiration: 1600});
   var speedTest = new cs({}, [
     a,
     b
