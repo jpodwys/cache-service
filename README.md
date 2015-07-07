@@ -2,21 +2,24 @@
 
 A tiered caching solution for node.
 
-If you are upgrading to 1.0.0, please see the [Breaking Change in 1.0.0](#breaking-change-in-100) section.
+If you are upgrading from older versions, please see the [Breaking Change History](#breaking-change-history) section.
 
-If you use superagent from node, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
+If you use superagent from ajax calls, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
 
 # What Does cache-service Do?
 
-cache-service allows you to create redundant, cache-agnostic caching configurations. By default, it supports [redis](http://redis.io/) (using [node_redis](https://github.com/mranney/node_redis)) and [node-cache](https://github.com/tcs-de/nodecache), but you can add any cache you want as long as you follow the [same interface](#cache-module-interface).
+cache-service allows you to create redundant, cache-agnostic caching configurations. I've supplied a [redis wrapper](https://github.com/jpodwys/cache-service-redis) and [node-cache wrapper](https://github.com/jpodwys/cache-service-node-cache) as separate npm modules, but you can add any cache you want as long as you follow the [same interface](#cache-module-interface).
 
 # Basic Usage
 
 Require and instantiate cache-service as follows:
 
 ```javascript
-var cs = require('cache-service').cacheService;
-var cacheService = new cs();
+var redisModule = require('cache-service-redis');
+var cs = require('cache-service');
+
+var redisCache = new redisModule();
+var cacheService = new cs({}, [redisCache]);
 ```
 
 This gives you the [default configuration](#what-does-the-default-configuration-give-me). Now you can cache like normal with the benefit of a tiered solution:
@@ -331,6 +334,14 @@ To make a pull request to this repo, please
 * Add comprehensive unit tests in my [test folder](https://github.com/jpodwys/cache-service/tree/master/test/server)
 * Tag me (@jpodwys) and submit
 
-# Breaking Change in 1.0.0
+# Breaking Change History
+
+#### 1.1.0
+
+cache-service has become more flexible and light-weight by no longer including cache modules directly within this repo. This means that you must now add any cache modules you want to use to your package.json and require and instantiate it yourself. cache-service will no longer accept a `cacheModuleConfig` object. That object has been replaced with the `cacheModules` object which is an array of pre-instantiated cache modules. These changes make it so that your app need not include cache modules you will not use. Thanks @nickdaugherty for the suggestion.
+
+As a result of the above information, cache-service makes no assumptions and therefore provides you with no default configuration. This means that you must provide a cache module or cache-service will throw an exception.
+
+#### 1.0.0
 
 cache-service stores its caches in a top-level property called `cacheCollection`. Older versions of `cacheCollection` contained two arrays (`preApi` and `postApi`). In version 1.0.0, `cacheCollection` has been simplified by eliminating its `preApi` and `postApi` properties. This means that if you have any advanced references such as `cacheService.cacheCollection.preApi[0]`, you can simplify them to `cacheService.cacheCollection[0]`.
