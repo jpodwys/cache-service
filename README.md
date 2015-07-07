@@ -18,11 +18,11 @@ Require and instantiate cache-service as follows:
 var redisModule = require('cache-service-redis');
 var cs = require('cache-service');
 
-var redisCache = new redisModule();
+var redisCache = new redisModule({redisEnv: 'REDISCLOUD_URL'});
 var cacheService = new cs({}, [redisCache]);
 ```
 
-This gives you the [default configuration](#what-does-the-default-configuration-give-me). Now you can cache like normal with the benefit of a tiered solution:
+Now you can cache like normal with the benefit of a tiered solution:
 
 ```javascript
 function getData(key, cb){
@@ -53,21 +53,12 @@ npm install cache-service
 npm test
 ```
 
-# What Does the Default Configuration Give Me?
-
-By following the [Basic Usage](basic-usage) example above, cache-service will:
-
-* attempt to setup a primary redis cache connection (see the [constructor](constructor) section to see how to connect to redis)
-* setup a node-cache instance that will act as a fallback cache if a redis cache connection is created and the primary and only cache if the redis cache connection is not created
-
-All caches will have a [defaultExpiration](defaultexpiraiton) of 900 seconds unless specified otherwise.
-
 # Constructor
 
-cache-service's constructor takes two optional parameters in the following order: [cacheServiceConfig](cache-service-configuraiton-object) and [cacheModuleConfig](cache-module-configuration-object):
+cache-service's constructor takes two optional parameters in the following order: [cacheServiceConfig](cache-service-configuraiton-object) and [cacheModules](cache-modules-array):
 
 ```javascript
-var cacheService = new cs(cacheServiceConfig, cacheModuleConfig);
+var cacheService = new cs(cacheServiceConfig, cacheModules);
 ```
 
 # Cache Service Configuration Object
@@ -97,36 +88,21 @@ This is particularly useful if you want to have a short-term in-memory cache wit
 * type: boolean
 * default: true
 
-# Cache Module Configuration Object
+# Cache Modules Array
 
-This is where you tell cache-service which caches you want and how you want them configured. Here is an example cacheModuleConfig:
+This is where you tell cache-service which caches you want and how you want them configured. Here is an example cacheModules array:
 
 ```javascript
-var cacheModuleConfig = [
-  {
-    type: 'node-cache',
-    defaultExpiration: 300,
-    cacheWhenEmpty: false
-  },
-  {
-    type: 'redis',
-    redisEnv: 'REDISCLOUD_URL',
-    defaultExpiration: 900,
-    cacheWhenEmpty: false
-  }
+var nodeCacheInstance = new nodeCacheModule({defaultExpiration: 500});
+var redisCacheInstance = new redisCacheModule({redisEnv: 'REDISCLOUD_URL'});
+var cacheModules = [
+  redisCacheInstance,
+  nodeCacheInstance
 ]
 ```
-This config would attempt to create a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 5-minute defaultExpiration and the redis instance would have a 15-minute default expiraiton.
+This cacheModules array will provide a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 500-second defaultExpiration and the redis instance would have a 15-minute default expiraiton.
 
-Here are all the available options:
-
-## type
-
-This is the type of cache you want to use. Currently, the only options are 'redis', 'node-cache', and 'custom'. If you choose 'redis' or 'node-cache', cache-service will create an instance of that cache type for you using the assiciated config options. If you choose 'custom', you can pass in your own cache instance and it will work as long as you match the [Cache Module Interface](#cache-module-interface).
-
-If you need external access to a redis or node-cache instance, you can instantiate a cache-module and then pass it as a 'custom' cache. See [Standalone Cache Module Usage](#standalone-cache-module-usage) for more info.
-
-* type: string
+Here are all the available options you can provide to your cache module config object:
 
 ## redisData (only for use with `type` 'redis')
 
