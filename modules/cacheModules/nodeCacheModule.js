@@ -39,7 +39,7 @@ function nodeCacheModule(config){
    */
   this.cache.get = function(key, cb, cleanKey){
     try {
-      cacheKey = (cleanKey) ? cleanKey : key;
+      var cacheKey = (cleanKey) ? cleanKey : key;
       this.log(false, 'Attempting to get key:', {key: cacheKey});
       this.db.get(cacheKey, function(err, result){
         cb(err, result);
