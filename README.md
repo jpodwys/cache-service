@@ -298,8 +298,8 @@ To make a pull request to this repo, please
 
 #### 1.1.0
 
-* cache-service has become more flexible and light-weight by no longer including cache modules directly within this repo. This means that you must now add any cache modules you want to use to your package.json and require and instantiate it yourself. cache-service will no longer accept a `cacheModuleConfig` object. That object has been replaced with the `cacheModules` object which is an array of pre-instantiated cache modules. These changes make it so that your app need not include cache modules you will not use. Thanks @nickdaugherty for the suggestion.
-* As a result of the above information, cache-service makes no assumptions and therefore provides you with no default configuration. This means that you must provide a cache module or cache-service will throw an exception.
+* cache-service has become more flexible and light-weight by no longer including cache modules directly within this repo. This means that you must now add any cache modules you want to use to your package.json and require and instantiate them yourself. cache-service will no longer accept a `cacheModuleConfig` object as the second param in its constructor. That object has been replaced with the `cacheModules` array which is an array of pre-instantiated cache modules. These changes make it so that your app need not include cache modules you will not use. Thanks @nickdaugherty for the suggestion.
+* As a result of the above information, cache-service makes no assumptions and therefore provides you with no default configuration. This means that you must provide a cache module in the `cacheModules` array or cache-service will throw an exception.
 * For the sake of brevity, `cacheService.cacheCollection` is now `cacheService.caches`.
 
 #### 1.0.0
