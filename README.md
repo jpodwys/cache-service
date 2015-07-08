@@ -1,25 +1,28 @@
 # cache-service
 
-A tiered caching solution for node.
+A tiered caching solution for JavaScript.
 
-If you are upgrading to 1.0.0, please see the [Breaking Change in 1.0.0](#breaking-change-in-100) section.
+Upgrading from an older version? Please see the [Breaking Change History](#breaking-change-history) section.
 
-If you use superagent from node, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
+Do you use [superagent](https://visionmedia.github.io/superagent/)? Check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
 
 # What Does cache-service Do?
 
-cache-service allows you to create redundant, cache-agnostic caching configurations. By default, it supports [redis](http://redis.io/) (using [node_redis](https://github.com/mranney/node_redis)) and [node-cache](https://github.com/tcs-de/nodecache), but you can add any cache you want as long as you follow the [same interface](#cache-module-interface).
+cache-service allows you to create redundant, cache-agnostic caching configurations. I've supplied a [redis wrapper](https://github.com/jpodwys/cache-service-redis) and [node-cache wrapper](https://github.com/jpodwys/cache-service-node-cache) as separate npm modules, but you can add any cache you want as long as you follow the [same interface](#cache-module-interface).
 
 # Basic Usage
 
 Require and instantiate cache-service as follows:
 
 ```javascript
-var cs = require('cache-service').cacheService;
-var cacheService = new cs();
+var redisModule = require('cache-service-redis');
+var cs = require('cache-service');
+
+var redisCache = new redisModule({redisEnv: 'REDISCLOUD_URL'});
+var cacheService = new cs({}, [redisCache]);
 ```
 
-This gives you the [default configuration](#what-does-the-default-configuration-give-me). Now you can cache like normal with the benefit of a tiered solution:
+Now you can cache like normal with the benefit of a tiered solution:
 
 ```javascript
 function getData(key, cb){
@@ -41,7 +44,7 @@ function getData(key, cb){
 # Install
 
 ```javascript
-npm install cache-service
+npm install cache-service --save
 ```
 
 # Run Tests
@@ -50,26 +53,17 @@ npm install cache-service
 npm test
 ```
 
-# What Does the Default Configuration Give Me?
-
-By following the [Basic Usage](basic-usage) example above, cache-service will:
-
-* attempt to setup a primary redis cache connection (see the [constructor](constructor) section to see how to connect to redis)
-* setup a node-cache instance that will act as a fallback cache if a redis cache connection is created and the primary and only cache if the redis cache connection is not created
-
-All caches will have a [defaultExpiration](defaultexpiraiton) of 900 seconds unless specified otherwise.
-
 # Constructor
 
-cache-service's constructor takes two optional parameters in the following order: [cacheServiceConfig](cache-service-configuraiton-object) and [cacheModuleConfig](cache-module-configuration-object):
+cache-service's constructor takes two parameters in the following order: [cacheServiceConfig](cache-service-configuraiton-object) and [cacheModules](cache-modules-array):
 
 ```javascript
-var cacheService = new cs(cacheServiceConfig, cacheModuleConfig);
+var cacheService = new cs(cacheServiceConfig, cacheModules);
 ```
 
 # Cache Service Configuration Object
 
-This is where you set cache-service-level config options.
+This is where you set cache-service-level config options. Here are all the available options:
 
 ## nameSpace
 
@@ -94,64 +88,41 @@ This is particularly useful if you want to have a short-term in-memory cache wit
 * type: boolean
 * default: true
 
-# Cache Module Configuration Object
+# Cache Modules Array
 
-This is where you tell cache-service which caches you want and how you want them configured. Here is an example cacheModuleConfig:
+This is where you give cache-service the pre-instantiated caches you want it to use. Here's an example `cacheModules` array:
 
 ```javascript
-var cacheModuleConfig = [
-  {
-    type: 'node-cache',
-    defaultExpiration: 300,
-    cacheWhenEmpty: false
-  },
-  {
-    type: 'redis',
-    redisEnv: 'REDISCLOUD_URL',
-    defaultExpiration: 900,
-    cacheWhenEmpty: false
-  }
+//Instantiate some cache modules
+var nodeCacheInstance = new nodeCacheModule({defaultExpiration: 500});
+var redisCacheInstance = new redisCacheModule({redisEnv: 'REDISCLOUD_URL'});
+
+//Place the new cache modules into the cacheModules array
+var cacheModules = [
+  redisCacheInstance,
+  nodeCacheInstance
 ]
 ```
-This config would attempt to create a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 5-minute defaultExpiration and the redis instance would have a 15-minute default expiraiton.
+This `cacheModules` array will provide a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 500-second defaultExpiration and the redis instance would have a 15-minute default expiraiton.
 
-Here are all the available options:
+# Cache Module Configuration Object
+
+As you can see in the [Cache Modules Array](#cache-modules-array) example above, each cache module constructor takes an object. This object is a `cacheModuleConfig` object. I've added a more explicit example below for clarity:
+
+```javascript
+var cacheModuleConfig = {defaultExpiration: 500, readOnly: true};
+var cacheModule = new nodeCacheModule(cacheModuleConfig);
+var cacheModules = [cacheModule];
+```
+
+Every cache module, regardless of the type of cache its wrapping, accepts a `cacheModuleConfig` in its constructor. While the properties accepted by a given cache module's `cacheModuleConfig` may vary, the properties listed below should always be available in all cache modules. If you need to know what unique `cacheModuleConfig` properties a specific cache module accepts, visit that cache module's documentation.
 
 ## type
 
-This is the type of cache you want to use. Currently, the only options are 'redis', 'node-cache', and 'custom'. If you choose 'redis' or 'node-cache', cache-service will create an instance of that cache type for you using the assiciated config options. If you choose 'custom', you can pass in your own cache instance and it will work as long as you match the [Cache Module Interface](#cache-module-interface).
-
-If you need external access to a redis or node-cache instance, you can instantiate a cache-module and then pass it as a 'custom' cache. See [Standalone Cache Module Usage](#standalone-cache-module-usage) for more info.
+An arbitrary identifier you can assign so you know which cache is responsible for logs and errors.
 
 * type: string
-
-## redisData (only for use with `type` 'redis')
-
-This is the most generic way to pass in your redis configuraiton options.
-
-* type: object
-
-#### Example
-
-```javascript
-var redisData = {
-  port: myRedisPort,
-  hostname: myRedisHostname,
-  auth: myRedisAuth
-}
-```
-
-## redisUrl (only for use with `type` 'redis')
-
-If you have all of your redis params already prepared as a URL in the following format: `http://uri:password@hostname:port`, then you can simply pass that URL with the object key `redisUrl`.
-
-* type: string
-
-## redisEnv (only for use with `type` 'redis')
-
-If you have a redis URL contained in an env variable (in process.env[redisEnv]), cache-service can retrieve it for you if you pass the env variable name with the object key `redisEnv`.
-
-* type: string
+* default: the name of the cache type ('redis' or 'node-cache' etc.)
 
 ## defaultExpiration
 
@@ -171,13 +142,6 @@ By default, if two subsequent caches have the same `defaultExpiraiton`, the seco
 ## readOnly
 
 Whether a cache should not be written to. Useful if you're sharing a redis cache with another team and your contract with them is that you will not alter their data.
-
-* type: boolean
-* default: false
-
-## postApi (Currently not implemented)
-
-Only for use with [superagent-cache](https://github.com/jpodwys/superagent-cache). Whether this cache should be evaluated only in the event of an API failure. This is useful when you want to have an extremely long-term cache to serve data when an API is down. Currently, only the first cache module with postApi set to true will be used.
 
 * type: boolean
 * default: false
@@ -238,62 +202,57 @@ Flush all keys and values from an instance of cache-service.
 
 * callback: type: function
 
-# Standalone Cache Module Usage
+# Available Cache Modules
 
-When you pass a `cacheModuleConfig` to cache-service's constructor, it internally instantiates cache modules based on what data you provide. For example, the following `cacheModuleConfig` will internally instantiate a single nodeCacheModule instance with the given settings:
+#### cache-service-redis
+
+A redis wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-redis).
+
+#### cache-service-node-cache
+
+An in-memory cache wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-node-cache).
+
+# Using Cache Modules
+
+## Install, Require, Instantiate, and Inject
+
+#### Install
+cache-service allows you to inject any cache type that matches the [Cache Module Interface](#cache-module-interface). Any such modules should be stored in a separate NPM package so that you can include exactly what you need in your app and nothing more. I've provided a [redis wrapper as an NPM module](https://www.npmjs.com/package/cache-service-redis), so let's use that one for the purposes of these examples. To install a cache module, locate the cache-service-compatible package you want to use (we'll use `cache-service-redis`), then install it as follows:
 
 ```javascript
-[
-  {
-    type: 'node-cache',
-    defaultExpiration: 60,
-    cacheWhenEmpty: false
-  }
-]
+npm install cache-service-redis --save
 ```
-
-But what if you want to manually instantiate your cache modules? There are several reason you might want to do this including:
-* Having more testable code
-* Knowing that a redis connection was successful before attempting to create a cache-service instance
-* Having an external reference to a cache module without having to drill into cache-service's innards
-* Injecting a custom cache module of your own creation (for example a mem-cache or a mongo cache module)
-* Simply wanting to use a cache module and not cache-service (perhaps you like the extra convenience features like being able to add expirations to `.mset()` or built-in logging)
-
-## Require, Instantiate, and Inject
 
 #### Require
-cache-service provides two native cache modules. A cache module is simply a wrapper for a cache type. The modules provided are for node-cache and redis. To require nodeCacheModule for manual instantiation, do the following:
+Now that you've installed the cache modules you want, go ahead and require them in your project:
 
 ```javascript
-var nodeCacheModule = require('cache-service').nodeCacheModule;
+var redisCacheModule = require('cache-service-redis');
 ```
 #### Instantiate
-To instantiate it, simply pass almost the same object we passed above in the `cacheModuleConfig` array as follows:
+To instantiate it, simply pass a [Cache Module Configuration](#cache-module-configuration) object:
 
 ```javascript
-var nodeCacheModuleInstance = new nodeCacheModule({
-  //type is not necessary since we're instantiating a specific type manually
+var redisCacheInstance = new nodeCacheModule({
+  redisEnv: 'REDISCLOUD_URL',
   defaultExpiration: 60,
   cacheWhenEmpty: false
-}).cache;
+});
 ```
 
 #### Inject
 
-Now let's pass our manually instantiated nodeCacheModuleInstance into our cache-service constructor:
+Now let's pass our manually instantiated redisCacheInstance into our cache-service constructor:
 
 ```javascript
 var cacheService = new cs({}, [
-  {
-    type: 'custom', //A type of 'custom' tells cache-service that this cache has already been instantiated
-    cache: nodeCacheModuleInstance
-  }
+  redisCacheInstance
 ]);
 ```
 
 # Cache Module Interface
 
-Any cache can be used with cache-service as long as it follows the cacheModule interface. Whether you'd like to wrap your own cache for your app or make a pull request to add another cache type to this repo, your cache wrapper should follow the instructions below.
+Any cache can be used with cache-service as long as it follows the cacheModule interface. Whether you'd like to wrap your own cache for your app or create a new NPM module so everyone can benefit from your work, your cache wrapper should follow the instructions below.
 
 ## Properties
 
@@ -305,7 +264,7 @@ Your cache wrapper must define the following top-level properties. Detailed desc
 
 ## Functions
 
-Your cache wrapper must define any of the following top-level functions you plan to use. Detailed descriptions for each of these can be found in the [API](#api) documentation.
+Your cache wrapper must define any of the following top-level functions you plan to use. Detailed descriptions for each of these can be found in the [API](#api) documentation. (If you're making an open-source package rather than just using your custom cache wrapper on your own, please include all functionality.)
 
 #### .get()
 #### .mget()
@@ -316,11 +275,15 @@ Your cache wrapper must define any of the following top-level functions you plan
 
 ## Usage
 
-Once your cache meets the requirements listed above, you can follow the [Require, Instantiate, and Inject](#require-instantiate-and-inject) instructions to use it directly, or you can submit a [pull request](#pull-requests). Once your pull request is merged, you'll be able to have cache-service instantiate your cacheModule by simply passing the appropriate object into your [Cache Module Configuration Object](#cache-module-configuration-object).
+Once your cache meets the requirements listed above, you can follow the [Install, Require, Instantiate, and Inject](#install-require-instantiate-and-inject) instructions to use it directly.
 
 ## More Help
 
-If this explanation doesn't cut it for you, have a look at [/modules/cacheModules/cacheModule.js](https://github.com/jpodwys/cache-service/blob/master/modules/cacheModules/cacheModule.js) and [/modules/cacheModules/nodeCacheModule.js](https://github.com/jpodwys/cache-service/blob/master/modules/cacheModules/nodeCacheModule.js) to see how I'm doing it.
+If this explanation doesn't cut it for you, have a look at [cache-service-node-cache](https://github.com/jpodwys/cache-service-node-cache/blob/master/nodeCacheModule.js) and [cache-service-redis](https://github.com/jpodwys/cache-service-node-cache/blob/master/redisCacheModule.js) to see how I'm doing it.
+
+# Cache Module Naming Convention
+
+If you decide to create an open-source cache module for use with cache-service, please start your module name with 'cache-service-' so that people can find it easily.
 
 # Pull Requests
 
@@ -331,6 +294,14 @@ To make a pull request to this repo, please
 * Add comprehensive unit tests in my [test folder](https://github.com/jpodwys/cache-service/tree/master/test/server)
 * Tag me (@jpodwys) and submit
 
-# Breaking Change in 1.0.0
+# Breaking Change History
+
+#### 1.1.0
+
+* cache-service has become more flexible and light-weight by no longer including cache modules directly within this repo. This means that you must now add any cache modules you want to use to your package.json and require and instantiate them yourself. cache-service will no longer accept a `cacheModuleConfig` object as the second param in its constructor. That object has been replaced with the `cacheModules` array which is an array of pre-instantiated cache modules. These changes make it so that your app need not include cache modules you will not use. Thanks @nickdaugherty for the suggestion.
+* As a result of the above information, cache-service makes no assumptions and therefore provides you with no default configuration. This means that you must provide a cache module in the `cacheModules` array or cache-service will throw an exception.
+* For the sake of brevity, `cacheService.cacheCollection` is now `cacheService.caches`.
+
+#### 1.0.0
 
 cache-service stores its caches in a top-level property called `cacheCollection`. Older versions of `cacheCollection` contained two arrays (`preApi` and `postApi`). In version 1.0.0, `cacheCollection` has been simplified by eliminating its `preApi` and `postApi` properties. This means that if you have any advanced references such as `cacheService.cacheCollection.preApi[0]`, you can simplify them to `cacheService.cacheCollection[0]`.
