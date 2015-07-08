@@ -130,7 +130,7 @@ describe('cachService API tests', function () {
 describe('cachService caching tests', function () {
   it('.set() should add data to all caches', function (done) {
     cacheService.set(key, value);
-    var caches = cacheService.cacheCollection;
+    var caches = cacheService.caches;
     for(var i = 0; i < caches.length; i++){
       var curCache = caches[i];
       curCache.get(key, function (err, response){
@@ -141,7 +141,7 @@ describe('cachService caching tests', function () {
   });
   it('.get(k) should search subsequent caches with longer default expirations when k is not found in earlier caches', function (done) {
     cacheService.set(key, value);
-    var firstCache = cacheService.cacheCollection[0];
+    var firstCache = cacheService.caches[0];
     firstCache.del(key, function (err, count){
       expect(count).toBe(1);
       firstCache.get(key, function (err, response){

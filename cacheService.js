@@ -52,8 +52,8 @@ function cacheService(cacheServiceConfig, cacheModules) {
       }
     }
     function getNextCache(){
-      if(curCacheIndex < self.cacheCollection.length){
-        curCache = self.cacheCollection[curCacheIndex++];
+      if(curCacheIndex < self.caches.length){
+        curCache = self.caches[curCacheIndex++];
         curCache.get(key, callback);
       }
     }
@@ -103,13 +103,13 @@ function cacheService(cacheServiceConfig, cacheModules) {
         returnResponse = response;
         successIndex = index;
       }
-      if(index + 1 === self.cacheCollection.length){
+      if(index + 1 === self.caches.length){
         returnResponse = response;
         finish(successIndex);
       }
     }
-    while(keepGoing && i < self.cacheCollection.length){
-      var cache = self.cacheCollection[i];
+    while(keepGoing && i < self.caches.length){
+      var cache = self.caches[i];
       cache.mget(keys, callback, i);
       i++;
     }
@@ -126,8 +126,8 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
-    for(var i = 0; i < self.cacheCollection.length; i++){
-      var cache = self.cacheCollection[i];
+    for(var i = 0; i < self.caches.length; i++){
+      var cache = self.caches[i];
       if(i === 0){
         cache.set(key, value, expiration, cb);
       }
@@ -151,10 +151,10 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var obj = arguments[0];
     var expiration = arguments[1] || null;
     var cb = arguments[2] || null;
-    for(var i = 0; i < self.cacheCollection.length; i++){
-      var cache = self.cacheCollection[i];
+    for(var i = 0; i < self.caches.length; i++){
+      var cache = self.caches[i];
       expiration = expiration || cache.expiration;
-      if(i === self.cacheCollection.length - 1){
+      if(i === self.caches.length - 1){
         cache.mset(obj, expiration, cb);
       }
       else{
@@ -173,9 +173,9 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 1){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
-    for(var i = 0; i < self.cacheCollection.length; i++){
-      var cache = self.cacheCollection[i];
-      if(i === self.cacheCollection.length - 1){
+    for(var i = 0; i < self.caches.length; i++){
+      var cache = self.caches[i];
+      if(i === self.caches.length - 1){
         cache.del(keys, cb);
       }
       else{
@@ -186,13 +186,13 @@ function cacheService(cacheServiceConfig, cacheModules) {
   }
 
   /**
-   * Flush all keys and values from all configured caches in cacheCollection
+   * Flush all keys and values from all configured caches in caches
    * @param {function} cb
    */
   self.flush = function(cb){
-    for(var i = 0; i < self.cacheCollection.length; i++){
-      var cache = self.cacheCollection[i];
-      if(i === self.cacheCollection.length - 1){
+    for(var i = 0; i < self.caches.length; i++){
+      var cache = self.caches[i];
+      if(i === self.caches.length - 1){
         cache.flushAll(cb);
       }
       else{
@@ -214,7 +214,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.cacheCollection = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
+    self.caches = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
   }
 
   /**
@@ -228,7 +228,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
   function checkCacheResponse(key, err, result, type, cacheIndex){
     if(err){
       log(true, 'Error when getting key ' + key + ' from cache of type ' + type + ':', err);
-      if(i < self.cacheCollection.length - 1){
+      if(i < self.caches.length - 1){
         return {status:'continue'};
       }
     }
@@ -237,9 +237,9 @@ function cacheService(cacheServiceConfig, cacheModules) {
       log(false, 'Key found:', {key: key, value: result});
       return {status: 'break', result: result};
     }
-    var curCache = self.cacheCollection[cacheIndex];
-    for(var i = cacheIndex + 1; i < self.cacheCollection.length; i++){
-      var nextCache = self.cacheCollection[i];
+    var curCache = self.caches[cacheIndex];
+    for(var i = cacheIndex + 1; i < self.caches.length; i++){
+      var nextCache = self.caches[i];
       if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
         return {status:'continue', toIndex: i};
       }
@@ -248,18 +248,18 @@ function cacheService(cacheServiceConfig, cacheModules) {
   }
 
   /**
-   * Writes data to caches that appear before the current cache in cacheCollection
+   * Writes data to caches that appear before the current cache in caches
    * @param {integer} currentCacheIndex
    * @param {string} key
    * @param {null | object | string} value
    */
   function writeToVolatileCaches(currentCacheIndex, key, value){
     if(currentCacheIndex > 0){
-      var curExpiration = self.cacheCollection[currentCacheIndex].expiration;
+      var curExpiration = self.caches[currentCacheIndex].expiration;
       for(var tempIndex = currentCacheIndex; tempIndex > -1; tempIndex--){
-        var preExpiration = self.cacheCollection[tempIndex].expiration;
+        var preExpiration = self.caches[tempIndex].expiration;
         if(preExpiration <= curExpiration){
-          var preCache = self.cacheCollection[currentCacheIndex];
+          var preCache = self.caches[currentCacheIndex];
           if(value){
             preCache.set(key, value); /*This means that a more volatile cache can have a key longer than a less volatile cache. Should I adjust this?*/
           }
