@@ -2,9 +2,9 @@
 
 A tiered caching solution for JavaScript.
 
-If you are upgrading from older versions, please see the [Breaking Change History](#breaking-change-history) section.
+Upgrading from an older version? Please see the [Breaking Change History](#breaking-change-history) section.
 
-If you use [superagent](https://visionmedia.github.io/superagent/) for ajax calls, check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
+Do you use [superagent](https://visionmedia.github.io/superagent/)? Check out [superagent-cache](https://github.com/jpodwys/superagent-cache) to get superagent queries with cache-service built right in.
 
 # What Does cache-service Do?
 
