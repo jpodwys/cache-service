@@ -1,14 +1,14 @@
 {
   "name": "cache-service",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A tiered caching solution for node.",
   "main": "cacheService.js",
   "devDependencies": {
     "mocha": "2.2.4",
     "expect": "1.6.0",
     "redis-js": "0.0.12-6",
-    "cache-service-node-cache": "0.1.0",
-    "cache-service-redis": "0.1.0"
+    "cache-service-node-cache": "1.0.0",
+    "cache-service-redis": "1.0.0"
   },
   "scripts": {
     "test": "bin/tests"
