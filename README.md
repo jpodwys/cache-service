@@ -195,9 +195,17 @@ Flush all keys and values from an instance of cache-service.
 
 * callback: type: function
 
+# Available Cache Modules
+
+#### cache-service-redis
+
+A redis wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-redis).
+
+#### cache-service-node-cache
+
+An in-memory cache wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-node-cache).
+
 # Using Cache Modules
-
-
 
 ## Install, Require, Instantiate, and Inject
 
@@ -265,6 +273,10 @@ Once your cache meets the requirements listed above, you can follow the [Install
 ## More Help
 
 If this explanation doesn't cut it for you, have a look at [cache-service-node-cache](https://github.com/jpodwys/cache-service-node-cache/blob/master/nodeCacheModule.js) and [cache-service-redis](https://github.com/jpodwys/cache-service-node-cache/blob/master/redisCacheModule.js) to see how I'm doing it.
+
+# Cache Module Naming Convention
+
+If you decide to create an open-source cache module for use with cache-service, please start your module name with 'cache-service-' so that people can find it easily.
 
 # Pull Requests
 
