@@ -117,6 +117,13 @@ var cacheModules = [cacheModule];
 
 Every cache module, regardless of the type of cache its wrapping, accepts a `cacheModuleConfig` in its constructor. While the properties accepted by a given cache module's `cacheModuleConfig` may vary, the properties listed below should always be available in all cache modules. If you need to know what unique `cacheModuleConfig` properties a specific cache module accepts, visit that cache module's documentation.
 
+## type
+
+An arbitrary identifier you can assign so you know which cache is responsible for logs and errors.
+
+* type: string
+* default: the name of the cache type ('redis' or 'node-cache' etc.)
+
 ## defaultExpiration
 
 The expiration to include when executing cache set commands. Can be overridden via `.set()`'s optional expiraiton param.
