@@ -44,7 +44,7 @@ function getData(key, cb){
 # Install
 
 ```javascript
-npm install cache-service
+npm install cache-service --save
 ```
 
 # Run Tests
