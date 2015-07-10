@@ -15,14 +15,11 @@ cache-service allows you to create redundant, cache-agnostic caching configurati
 Require and instantiate cache-service as follows:
 
 ```javascript
-var redisModule = require('cache-service-redis');
 var cs = require('cache-service');
-
-var redisCache = new redisModule({redisEnv: 'REDISCLOUD_URL'});
-var cacheService = new cs({}, [redisCache]);
+var cacheService = new cs();
 ```
 
-Now you can cache like normal with the benefit of a tiered solution:
+This gives you the [default configuration](#what-does-the-default-configuration-give-me). Now you can cache like normal with the benefit of a tiered solution:
 
 ```javascript
 function getData(key, cb){
@@ -52,6 +49,39 @@ npm install cache-service --save
 ```javascript
 npm test
 ```
+
+# What Does the Default Configuration Give Me?
+
+By following the [Basic Usage](basic-usage) example above, cache-service will:
+
+* use all the default values shown in the [Cache Service Configuration Object](#cache-service-configuration-object) section
+* provide you with an instance of [cacheModule](https://github.com/jpodwys/cache-service-cache-module)
+
+All caches will have a [defaultExpiration](defaultexpiraiton) of 900 seconds unless specified otherwise.
+
+# How Do I Use a Custom Configuration?
+
+To use a custom configuraiton, take advantage of the the two optional params you can hand to `cache-service`'s [constructor](#constructor) as follows:
+
+```javascript
+//Require the desired modules (make sure to add them to your package.json)
+var nodeCacheModule = require('cache-service-node-cache');
+var redisModule = require('cache-service-redis');
+var cs = require('cache-service');
+
+//Instantiate your cache modules
+var nodeCache = new nodeCacheModule({defaultExpiration: 500});
+var redisCache = new redisModule({redisEnv: 'REDISCLOUD_URL'});
+
+//Setup your cache-service constructor params
+var cacheServiceConfig = {verbose: true};
+var cacheModules = [nodeCache, redisCache];
+
+//Instantiate cache-service
+var cacheService = new cs(cacheServiceConfig, cacheModules);
+```
+
+This code block will result in a tiered `cache-service` instance that uses a primary in-memory cache and a fallback redis cache. For more information on what cache modules are available, see the [Available Cache Modules](#available-cache-modules) section.
 
 # Constructor
 
@@ -212,6 +242,10 @@ A redis wrapper for cache-service or standalone use. [Available on NPM](https://
 
 An in-memory cache wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-node-cache).
 
+#### cache-service-cache-module
+
+A super-light in-memory cache for cache-service or standalone use. (This module is bundled with `cache-service` and provided in the default configuration if you do not provide a `cacheModules` constructor param.) [Available on NPM](https://github.com/jpodwys/cache-service-cache-module).
+
 # Using Cache Modules
 
 ## Install, Require, Instantiate, and Inject
@@ -295,6 +329,17 @@ To make a pull request to this repo, please
 * Tag me (@jpodwys) and submit
 
 # Breaking Change History
+
+#### 1.2.0
+
+* With this release, you must use the following releases of each of the following cache modules to avoid a conflict with `.flush()`:
+  * cache-service-cache-module: >= 1.0.0
+  * cache-service-node-cache: >= 1.0.1
+  * cache-service-redis: >= 1.0.1
+* The default configuration returns! And this time, it's better than ever. (Not really a breaking change, but worth noting, since I removed this feature in `1.1.0`). My goal was to accomidate two user groups:
+  * The ones who want zero bloat--don't bundle cache modules I'm not going to use
+  * The ones who know nothing about external cache modules and just want to get caching
+In order to satisfy both groups, I built a brand new, bare-bones, in-memory cache module called [cacheModule](https://github.com/jpodwys/cache-service-cache-module). It has no external dependencies and matches `cache-service`'s complete API. Unminified and with comments, the module's JavaScript file is 165 lines. It will be injected into `cacheService.caches` if no `cacheModules` constructor param is provided.
 
 #### 1.1.0
 
