@@ -313,7 +313,7 @@ Once your cache meets the requirements listed above, you can follow the [Install
 
 ## More Help
 
-If this explanation doesn't cut it for you, have a look at [cache-service-node-cache](https://github.com/jpodwys/cache-service-node-cache/blob/master/nodeCacheModule.js) and [cache-service-redis](https://github.com/jpodwys/cache-service-node-cache/blob/master/redisCacheModule.js) to see how I'm doing it.
+If this explanation doesn't cut it for you, have a look at [cache-service-cache-module](https://github.com/jpodwys/cache-service-cache-module/blob/master/cacheModule.js), [cache-service-node-cache](https://github.com/jpodwys/cache-service-node-cache/blob/master/nodeCacheModule.js), and [cache-service-redis](https://github.com/jpodwys/cache-service-node-cache/blob/master/redisCacheModule.js) to see how I'm doing it.
 
 # Cache Module Naming Convention
 
