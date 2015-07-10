@@ -5,8 +5,11 @@ var nodeCache = new ncModule();
 var rcModule = require('cache-service-redis');
 var redisMock = require('redis-js');
 var redisCache = new rcModule({redisMock: redisMock});
+var cModule = require('cache-service-cache-module');
+var cacheModule = new cModule();
 var cacheService = new cs({writeToVolatileCaches: false}, [
   redisCache,
+  cacheModule,
   nodeCache
 ]);
 

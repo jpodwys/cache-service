@@ -16,10 +16,34 @@ function cacheCollection(settings, cacheModules){
    * Initialize cacheCollection given the provided constructor params
    */
   function init(){
-    if(!cacheModules || cacheModules.length < 1){
-      throw new exception('NoCacheModulesException', 'No cacheModules object was provided.');
-    }
     self.caches = [];
+    if(isEmpty(cacheModules)){
+      log(false, 'No cacheModules array provided--using the default configuration.');
+      getDefaultConfiguration();
+    }
+    else{
+      log(false, 'cacheModules array provided--using a custom configuration.');
+      getCustomConfiguration();
+      if(self.caches.length < 1){
+        throw new exception('NoCacheException', 'No caches were succesfully initialized.');
+      }
+    }
+  }
+
+  /**
+   * Adds a nodeCacheModule instance to self.caches if no cacheModules array is provided
+   */
+  function getDefaultConfiguration(){
+    var cModule = require('cache-service-cache-module');
+    var cacheModule = new cModule();
+    cacheModule = addSettings(cacheModule);
+    self.caches.push(cacheModule);
+  }
+
+  /**
+   * Adds caches that are not 'empty' from the cacheModules array to self.caches
+   */
+  function getCustomConfiguration(){
     for(var i = 0; i < cacheModules.length; i++){
       var cacheModule = cacheModules[i];
       if(isEmpty(cacheModule)){
@@ -28,9 +52,6 @@ function cacheCollection(settings, cacheModules){
       }
       cacheModule = addSettings(cacheModule);
       self.caches.push(cacheModule);
-    }
-    if(self.caches.length < 1){
-      throw new exception('NoCacheException', 'No caches were succesfully initialized.');
     }
   }
 
@@ -51,7 +72,7 @@ function cacheCollection(settings, cacheModules){
    * @return {boolean}
    */
   function isEmpty (val) {
-    return (val === false || val === null || val === undefined || (typeof val == 'object' && Object.keys(val).length == 0));
+    return (val === undefined || val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
   }
 
   /**

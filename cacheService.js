@@ -193,10 +193,10 @@ function cacheService(cacheServiceConfig, cacheModules) {
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
       if(i === self.caches.length - 1){
-        cache.flushAll(cb);
+        cache.flush(cb);
       }
       else{
-        cache.flushAll();
+        cache.flush();
       }
     }
     log(false, 'Flushing all data');
