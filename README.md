@@ -129,8 +129,8 @@ var redisCacheInstance = new redisCacheModule({redisEnv: 'REDISCLOUD_URL'});
 
 //Place the new cache modules into the cacheModules array
 var cacheModules = [
-  redisCacheInstance,
   nodeCacheInstance
+  redisCacheInstance
 ]
 ```
 This `cacheModules` array will provide a primary node-cache instance with a fallback redis cache. The node-cache instance would have a 500-second defaultExpiration and the redis instance would have a 15-minute default expiraiton.
