@@ -350,3 +350,7 @@ In order to satisfy both groups, I built a brand new, bare-bones, in-memory cach
 #### 1.0.0
 
 cache-service stores its caches in a top-level property called `cacheCollection`. Older versions of `cacheCollection` contained two arrays (`preApi` and `postApi`). In version 1.0.0, `cacheCollection` has been simplified by eliminating its `preApi` and `postApi` properties. This means that if you have any advanced references such as `cacheService.cacheCollection.preApi[0]`, you can simplify them to `cacheService.cacheCollection[0]`.
+
+#### 0.2.8
+
+Prior to this version, a complete `.mget()` miss (meaning that zero of the passed keys were found) returned `null`. Starting with this version, the same scenario returns an empty object.
