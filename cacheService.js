@@ -120,20 +120,26 @@ function cacheService(cacheServiceConfig, cacheModules) {
    * @param {string} key
    * @param {string | object} value
    * @param {integer} expiration
+   * @param {function} refresh
    * @param {function} cb
    */
-  self.set = function(key, value, expiration, cb){
+  self.set = function(){
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
+
+    var key = arguments[0];
+    var value = arguments[1];
+    var expiration = arguments[2] || null;
+    var refresh = (arguments.length == 5) ? arguments[3] : null;
+    var cb = (arguments.length == 5) ? arguments[4] : arguments[3];
+    cb = cb || noop;
+
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
-      if(i === 0){
-        cache.set(key, value, expiration, cb);
-      }
-      else{
-        cache.set(key, value, expiration); 
-      }
+      var ref = (i == self.caches.length - 1) ? refresh : null;
+      var func = (i == 0) ? cb : noop;
+      cache.set(key, value, expiration, refresh, func);
     }
     log(false, 'Setting key and value:', {key: key, value: value});
   }
@@ -295,6 +301,8 @@ function cacheService(cacheServiceConfig, cacheModules) {
       else console.log(indentifier + message);
     }
   }
+
+  function noop(){}
 
   init();
 }
