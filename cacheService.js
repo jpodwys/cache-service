@@ -127,14 +127,12 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
-
     var key = arguments[0];
     var value = arguments[1];
     var expiration = arguments[2] || null;
     var refresh = (arguments.length == 5) ? arguments[3] : null;
     var cb = (arguments.length == 5) ? arguments[4] : arguments[3];
     cb = cb || noop;
-
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
       var ref = (i == self.caches.length - 1) ? refresh : null;
