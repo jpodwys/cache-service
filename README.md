@@ -196,16 +196,19 @@ Retrieve the values belonging to a series of keys. If a key is not found, it wil
 * err: type: object
 * response: type: object, example: {key: 'value', key2: 'value2'...}
 
-## .set(key, value [, expiraiton, callback])
+## .set(key, value, [expiraiton], [refresh(cb)], [callback])
+
+> See the [Using Background Refresh](#using-background-refresh) section for more about the `refresh` and `callback` params.
 
 Set a value by a given key.
 
 * key: type: string
 * callback: type: function
 * expiration: type: int, measure: seconds
+* refresh: type: function
 * callback: type: function
 
-## .mset(obj [, expiration, callback])
+## .mset(obj, [expiration], [callback])
 
 Set multiple values to multiple keys
 
@@ -217,7 +220,7 @@ This function exposes a heirarchy of expiration values as follows:
 * If an object with both `cacheValue` and `expiration` as properties is not present, the `expiration` provided to the `.mset()` argument list will be used.
 * If neither of the above is provided, each cache's `defaultExpiration` will be applied.
 
-## .del(keys [, callback (err, count)])
+## .del(keys, [callback (err, count)])
 
 Delete a key or an array of keys and their associated values.
 
@@ -226,11 +229,56 @@ Delete a key or an array of keys and their associated values.
 * err: type: object
 * count: type: int
 
-## .flush(cb)
+## .flush([cb])
 
 Flush all keys and values from an instance of cache-service.
 
 * callback: type: function
+
+## .caches
+
+This is the `cacheModules` array you passed as the second param to the constructor.
+
+# Using Background Refresh
+
+With a typical cache setup, you're left to find the perfect compromise between having a long expiration so that users don't have to suffer through the worst case load time, and a short expiration so data doesn't get stale. `cache-service` eliminates the need to worry about users suffering through the longest wait time by automatically refreshing keys for you.
+
+#### Setup
+
+`cache-service` relies on the background refresh feature of the final cache you pass in the `cacheModules` array. When you call `.set()` and pass `refresh` and `callback` params, `cache-service` routes the provided `refresh` param to ONLY the final cache in the `cacheModules` array. This means that:
+
+* The final cache in your `cacheModules` array must have `backgroundRefreshEnabled` set to `true` (it defaults to `false`)
+* You almost certainly want `cache-service`'s `writeToVolatileCaches` property set to `true` (it defaults to `true`) so that the refresh written to the final cache will propogate forward to earlier caches
+
+#### Configure
+
+If desired, configure the following properties in the final cache in the `cacheModules` array:
+
+* `backgroundRefreshInterval`
+* `backgroundRefreshMinTtl`
+* `backgroundRefreshIntervalCheck`
+
+#### Use
+
+Background refresh is exposed via the `.set()` command as follows:
+
+```javascript
+cacheModule.set('key', 'value', 300, refresh, cb);
+```
+
+If you want to pass `refresh`, you must also pass `cb` because if only four params are passed, `cache-service-node-cache` will assume the fourth param is `cb`.
+
+#### The Refresh Param
+
+The `refresh` param MUST be a function that accepts a callback and passes `err` and `response` to it as follows:
+
+```javascript
+var refresh = function(cb){
+  var response = goGetData();
+  cb(null, response);
+}
+```
+
 
 # Available Cache Modules
 
@@ -306,6 +354,7 @@ Your cache wrapper must define any of the following top-level functions you plan
 #### .mset()
 #### .del()
 #### .flush()
+#### .db (Not a function--see the API)
 
 ## Usage
 
