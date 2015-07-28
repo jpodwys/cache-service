@@ -279,7 +279,6 @@ var refresh = function(cb){
 }
 ```
 
-
 # Available Cache Modules
 
 #### cache-service-redis
