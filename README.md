@@ -196,7 +196,7 @@ Retrieve the values belonging to a series of keys. If a key is not found, it wil
 * err: type: object
 * response: type: object, example: {key: 'value', key2: 'value2'...}
 
-## .set(key, value, [expiraiton], [refresh(cb)], [callback])
+## .set(key, value, [expiraiton], [refresh(key, cb)], [callback])
 
 > See the [Using Background Refresh](#using-background-refresh) section for more about the `refresh` and `callback` params.
 
@@ -270,10 +270,15 @@ If you want to pass `refresh`, you must also pass `cb` because if only four para
 
 #### The Refresh Param
 
-The `refresh` param MUST be a function that accepts a callback and passes `err` and `response` to it as follows:
+###### refresh(key, cb(err, response))
+
+* key: type: string: this is the key that is being refreshed
+* cb: type: function: you must trigger this function to pass the data that should replace the current key's value
+
+The `refresh` param MUST be a function that accepts `key` and a callback function that accepts `err` and `response` as follows:
 
 ```javascript
-var refresh = function(cb){
+var refresh = function(key, cb){
   var response = goGetData();
   cb(null, response);
 }
