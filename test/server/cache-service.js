@@ -203,7 +203,7 @@ describe('cachService caching tests', function () {
 describe('cachService background refresh tests', function () {
 
   it('Setting a key with a short expiration and a refresh function should persist the key beyond its expiration, but only in the last cache', function (done) {
-    var refresh = function(cb){
+    var refresh = function(key, cb){
       cb(null, 1);
     }
     cacheService.set(key, 1, 1, refresh, function(){
