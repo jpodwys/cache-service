@@ -28,7 +28,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
     }
-    log(false, 'get() called for key:', {key: key});
+    log(false, '.get() called:', {key: key});
     var curCache;
     var curCacheIndex = 0;
     var callback = function(err, result){
@@ -47,7 +47,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
         }
       }
       else {
-        log(false, 'get() key not found:', {key: key});
+        log(false, '.get() key not found:', {key: key});
         cb(null, null);
       }
     }
@@ -69,7 +69,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mget() requires 2 arguments.');
     }
-    log(false, 'MGetting keys:', {keys: keys});
+    log(false, '.mget() called:', {keys: keys});
     var maxKeysFound = 0;
     var returnError = null;
     var returnResponse = null;
@@ -120,22 +120,26 @@ function cacheService(cacheServiceConfig, cacheModules) {
    * @param {string} key
    * @param {string | object} value
    * @param {integer} expiration
+   * @param {function} refresh
    * @param {function} cb
    */
-  self.set = function(key, value, expiration, cb){
+  self.set = function(){
     if(arguments.length < 2){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
+    var key = arguments[0];
+    var value = arguments[1];
+    var expiration = arguments[2] || null;
+    var refresh = (arguments.length == 5) ? arguments[3] : null;
+    var cb = (arguments.length == 5) ? arguments[4] : arguments[3];
+    cb = cb || noop;
+    log(false, '.set() called:', {key: key, value: value});
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
-      if(i === 0){
-        cache.set(key, value, expiration, cb);
-      }
-      else{
-        cache.set(key, value, expiration); 
-      }
+      var ref = (i == self.caches.length - 1) ? refresh : null;
+      var func = (i == 0) ? cb : noop;
+      cache.set(key, value, expiration, refresh, func);
     }
-    log(false, 'Setting key and value:', {key: key, value: value});
   }
 
   /**
@@ -151,6 +155,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var obj = arguments[0];
     var expiration = arguments[1] || null;
     var cb = arguments[2] || null;
+    log(false, '.mset() called:', {data: obj});
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
       expiration = expiration || cache.expiration;
@@ -161,7 +166,6 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.mset(obj, expiration);
       }
     }
-    log(false, 'MSetting obj:', {obj: obj});
   }
 
   /**
@@ -173,6 +177,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 1){
       throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
+    log(false, '.del() called:', {keys: keys});
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
       if(i === self.caches.length - 1){
@@ -182,7 +187,6 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.del(keys);
       }
     }
-    log(false, 'Deleting keys:', {keys: keys}); 
   }
 
   /**
@@ -190,6 +194,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    * @param {function} cb
    */
   self.flush = function(cb){
+    log(false, '.flush() called');
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
       if(i === self.caches.length - 1){
@@ -199,7 +204,6 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.flush();
       }
     }
-    log(false, 'Flushing all data');
   }
 
   /**
@@ -295,6 +299,8 @@ function cacheService(cacheServiceConfig, cacheModules) {
       else console.log(indentifier + message);
     }
   }
+
+  function noop(){}
 
   init();
 }

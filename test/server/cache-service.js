@@ -1,7 +1,7 @@
 var expect = require('expect');
 var cs = require('../../cacheService');
 var ncModule = require('cache-service-node-cache');
-var nodeCache = new ncModule();
+var nodeCache = new ncModule({backgroundRefreshInterval: 500});
 var rcModule = require('cache-service-redis');
 var redisMock = require('redis-js');
 var redisCache = new rcModule({redisMock: redisMock});
@@ -198,6 +198,30 @@ describe('cachService caching tests', function () {
       done();
     });
   });
+});
+
+describe('cachService background refresh tests', function () {
+
+  it('Setting a key with a short expiration and a refresh function should persist the key beyond its expiration, but only in the last cache', function (done) {
+    var refresh = function(key, cb){
+      cb(null, 1);
+    }
+    cacheService.set(key, 1, 1, refresh, function(){
+      setTimeout(function(){
+        cacheService.caches[0].get(key, function (err, response){
+          expect(response).toBe(null);
+          cacheService.caches[1].get(key, function (err, response){
+            expect(response).toBe(null);
+            cacheService.caches[2].get(key, function (err, response){
+              expect(response).toBe(1);
+              done();
+            });
+          });
+        });
+      }, 1500);
+    });
+  });
+
 });
 
 describe('cachService performance tests (50ms added to all tests)', function () {
