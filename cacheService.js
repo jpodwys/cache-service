@@ -138,7 +138,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       var cache = self.caches[i];
       var ref = (i == self.caches.length - 1) ? refresh : null;
       var func = (i == 0) ? cb : noop;
-      cache.set(key, value, expiration, refresh, func);
+      cache.set(key, value, expiration, ref, func);
     }
   }
 
