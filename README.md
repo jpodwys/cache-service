@@ -31,7 +31,7 @@ function getData(key, cb){
       performQuery(key, function (err, response){
         var value = response.body.user;
         cacheService.set(key, value);
-        cb(err, user);
+        cb(err, value);
       });
     }
   });
