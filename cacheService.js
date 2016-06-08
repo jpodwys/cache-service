@@ -234,9 +234,12 @@ function cacheService(cacheServiceConfig, cacheModules) {
   function checkCacheResponse(key, err, result, type, cacheIndex){
     if(err){
       log(true, 'Error when getting key ' + key + ' from cache of type ' + type + ':', err);
-      if(i < self.caches.length - 1){
-        return {status:'continue'};
-      }
+
+      // thanpolas: this comparison doens't make sense, "i" is not defined at this point.
+      // 
+      // if(i < self.caches.length - 1){
+      //   return {status:'continue'};
+      // }
     }
     //THIS ALLOWS false AS A VALID CACHE VALUE, BUT DO I WANT null TO BE VALID AS WELL?
     if(result !== null && typeof result !== 'undefined'){
@@ -244,7 +247,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       return {status: 'break', result: result};
     }
     var curCache = self.caches[cacheIndex];
-    for(var i = cacheIndex + 1; i < self.caches.length; i++) {
+    for(var i = cacheIndex + 1, len = self.caches.length; i < len; i++) {
       var nextCache = self.caches[i];
       if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
         return {status:'continue', toIndex: i};
