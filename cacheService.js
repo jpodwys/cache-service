@@ -240,7 +240,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       log(true, 'Error when getting key ' + key + ' from cache of type ' + type + ':', err);
 
       // thanpolas: this comparison doens't make sense, "i" is not defined at this point.
-      // 
+      //
       // if(i < self.caches.length - 1){
       //   return {status:'continue'};
       // }
