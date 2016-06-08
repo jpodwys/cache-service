@@ -25,7 +25,7 @@ function cacheCollection(settings, cacheModules){
       log(false, 'cacheModules array provided--using a custom configuration.');
       getCustomConfiguration();
       if(self.caches.length < 1){
-        throw new exception('NoCacheException', 'No caches were succesfully initialized.');
+        throw new Exception('NoCacheException', 'No caches were succesfully initialized.');
       }
     }
   }
@@ -34,8 +34,8 @@ function cacheCollection(settings, cacheModules){
    * Adds a nodeCacheModule instance to self.caches if no cacheModules array is provided
    */
   function getDefaultConfiguration(){
-    var cModule = require('cache-service-cache-module');
-    var cacheModule = new cModule();
+    var CModule = require('cache-service-cache-module');
+    var cacheModule = new CModule();
     cacheModule = addSettings(cacheModule);
     self.caches.push(cacheModule);
   }
@@ -72,7 +72,8 @@ function cacheCollection(settings, cacheModules){
    * @return {boolean}
    */
   function isEmpty (val) {
-    return (val === undefined || val === false || val === null || (typeof val == 'object' && Object.keys(val).length == 0));
+    return (val === undefined || val === false || val === null ||
+      (typeof val === 'object' && Object.keys(val).length === 0));
   }
 
   /**
@@ -81,7 +82,7 @@ function cacheCollection(settings, cacheModules){
    * @param {string} message
    * @return {exception}
    */
-  function exception(name, message){
+  function Exception(name, message){
     this.name = name;
     this.message = message;
   }
@@ -95,8 +96,11 @@ function cacheCollection(settings, cacheModules){
   function log(isError, message, data){
     var indentifier = 'cacheService: ';
     if(self.verbose || isError){
-      if(data) console.log(indentifier + message, data);
-      else console.log(indentifier + message);
+      if(data) {
+        console.log(indentifier + message, data);
+      } else {
+        console.log(indentifier + message);
+      }
     }
   }
 
