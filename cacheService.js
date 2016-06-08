@@ -138,7 +138,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var cb = (arguments.length === 5) ? arguments[4] : arguments[3];
     cb = cb || noop;
     log(false, '.set() called:', {key: key, value: value});
-    for(var i = 0; i < self.caches.length; i++){
+    for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       var ref = (i === self.caches.length - 1) ? refresh : null;
       var func = (i === 0) ? cb : noop;
@@ -160,7 +160,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var expiration = arguments[1] || null;
     var cb = arguments[2] || null;
     log(false, '.mset() called:', {data: obj});
-    for(var i = 0; i < self.caches.length; i++){
+    for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       expiration = expiration || cache.expiration;
       if(i === self.caches.length - 1){
@@ -182,7 +182,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
     log(false, '.del() called:', {keys: keys});
-    for(var i = 0; i < self.caches.length; i++){
+    for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       if(i === self.caches.length - 1){
         cache.del(keys, cb);
@@ -199,7 +199,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.flush = function(cb){
     log(false, '.flush() called');
-    for(var i = 0; i < self.caches.length; i++){
+    for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       if(i === self.caches.length - 1){
         cache.flush(cb);
@@ -225,6 +225,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
     self.caches = new CacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
+    self.cachesLength = self.caches.length;
   }
 
   /**
@@ -251,7 +252,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       return {status: 'break', result: result};
     }
     var curCache = self.caches[cacheIndex];
-    for(var i = cacheIndex + 1, len = self.caches.length; i < len; i++) {
+    for(var i = cacheIndex + 1; i < self.cachesLength; i++) {
       var nextCache = self.caches[i];
       if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
         return {status:'continue', toIndex: i};
