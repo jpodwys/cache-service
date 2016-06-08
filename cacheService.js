@@ -26,7 +26,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.get = function(key, cb){
     if(arguments.length < 2){
-      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
+      throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
     }
     log(false, '.get() called:', {key: key});
     var curCache;
@@ -50,7 +50,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
         log(false, '.get() key not found:', {key: key});
         cb(null, null);
       }
-    }
+    };
     function getNextCache(){
       if(curCacheIndex < self.caches.length){
         curCache = self.caches[curCacheIndex++];
@@ -58,7 +58,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       }
     }
     getNextCache();
-  }
+  };
 
   /**
    * Get multiple values given multiple keys
@@ -67,7 +67,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.mget = function(keys, cb){
     if(arguments.length < 2){
-      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mget() requires 2 arguments.');
+      throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.mget() requires 2 arguments.');
     }
     log(false, '.mget() called:', {keys: keys});
     var maxKeysFound = 0;
@@ -86,10 +86,10 @@ function cacheService(cacheServiceConfig, cacheModules) {
         }
         cb(returnError, returnResponse);
       }
-    }
+    };
     var callback = function(err, response, index){
       var objectSize = 0;
-      for(key in response){
+      for (var key in response){
         if(response.hasOwnProperty(key)){
           ++objectSize;
         }
@@ -107,13 +107,13 @@ function cacheService(cacheServiceConfig, cacheModules) {
         returnResponse = response;
         finish(successIndex);
       }
-    }
+    };
     while(keepGoing && i < self.caches.length){
       var cache = self.caches[i];
       cache.mget(keys, callback, i);
       i++;
     }
-  }
+  };
 
   /**
    * Associate a key and value and optionally set an expiration
@@ -125,22 +125,22 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.set = function(){
     if(arguments.length < 2){
-      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
+      throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.set() requires a minimum of 2 arguments.');
     }
     var key = arguments[0];
     var value = arguments[1];
     var expiration = arguments[2] || null;
-    var refresh = (arguments.length == 5) ? arguments[3] : null;
-    var cb = (arguments.length == 5) ? arguments[4] : arguments[3];
+    var refresh = (arguments.length === 5) ? arguments[3] : null;
+    var cb = (arguments.length === 5) ? arguments[4] : arguments[3];
     cb = cb || noop;
     log(false, '.set() called:', {key: key, value: value});
     for(var i = 0; i < self.caches.length; i++){
       var cache = self.caches[i];
-      var ref = (i == self.caches.length - 1) ? refresh : null;
-      var func = (i == 0) ? cb : noop;
+      var ref = (i === self.caches.length - 1) ? refresh : null;
+      var func = (i === 0) ? cb : noop;
       cache.set(key, value, expiration, ref, func);
     }
-  }
+  };
 
   /**
    * Associate multiple keys with multiple values and optionally set expirations per function and/or key
@@ -150,7 +150,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.mset = function(){
     if(arguments.length < 1){
-      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.mset() requires a minimum of 1 argument.');
+      throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.mset() requires a minimum of 1 argument.');
     }
     var obj = arguments[0];
     var expiration = arguments[1] || null;
@@ -166,7 +166,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.mset(obj, expiration);
       }
     }
-  }
+  };
 
   /**
    * Delete a list of keys and their values
@@ -175,7 +175,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.del = function(keys, cb){
     if(arguments.length < 1){
-      throw new exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
+      throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
     log(false, '.del() called:', {keys: keys});
     for(var i = 0; i < self.caches.length; i++){
@@ -187,7 +187,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.del(keys);
       }
     }
-  }
+  };
 
   /**
    * Flush all keys and values from all configured caches in caches
@@ -204,7 +204,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cache.flush();
       }
     }
-  }
+  };
 
   /**
    ******************************************* PRIVATE FUNCTIONS *******************************************
@@ -214,7 +214,9 @@ function cacheService(cacheServiceConfig, cacheModules) {
    * Initialize cacheService given the provided constructor params
    */
   function init(){
-    if(!cacheServiceConfig) cacheServiceConfig = {};
+    if(!cacheServiceConfig) {
+      cacheServiceConfig = {};
+    }
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
@@ -242,7 +244,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
       return {status: 'break', result: result};
     }
     var curCache = self.caches[cacheIndex];
-    for(var i = cacheIndex + 1; i < self.caches.length; i++){
+    for(var i = cacheIndex + 1; i < self.caches.length; i++) {
       var nextCache = self.caches[i];
       if(nextCache.checkOnPreviousEmpty || nextCache.expiration > curCache.expiration){
         return {status:'continue', toIndex: i};
@@ -281,7 +283,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
    * @param {string} message
    * @return {exception}
    */
-  function exception(name, message){
+  function Exception(name, message) {
     this.name = name;
     this.message = message;
   }
@@ -295,8 +297,11 @@ function cacheService(cacheServiceConfig, cacheModules) {
   function log(isError, message, data){
     var indentifier = 'cacheService: ';
     if(self.verbose || isError){
-      if(data) console.log(indentifier + message, data);
-      else console.log(indentifier + message);
+      if(data) {
+        console.log(indentifier + message, data);
+      } else {
+        console.log(indentifier + message);
+      }
     }
   }
 
