@@ -202,7 +202,7 @@ Retrieve the values belonging to a series of keys. If a key is not found, it wil
 
 Set a value by a given key. All [available cache modules](#available-cache-modules) attempt to `JSON.stringify` all values passed to `.set()` and `JSON.parse` all values returned from `.get()`.
 
-> IMPORTANT: The `callback` params takes precedence over the `refresh` param. This means that, when only four arguments are passed and the last param is a function, `cache-service` will assume the last param is `callback`. Similarly, if three params are passed and the third is a function, `cache-service` will assume the third param is `callback` rather than `refresh`. This is done to maintain backwards compatibility with versions released before the `background refresh` feature was added.
+> IMPORTANT: The `callback` param takes precedence over the `refresh` param. This means that, when only four arguments are passed and the last param is a function, `cache-service` will assume the last param is `callback`. Similarly, if three params are passed and the third is a function, `cache-service` will assume the third param is `callback` rather than `refresh`. This is done to maintain backwards compatibility with versions released before the `background refresh` feature was added.
 
 * key: type: string
 * callback: type: function
