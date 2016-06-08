@@ -134,9 +134,23 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var key = arguments[0];
     var value = arguments[1];
     var expiration = arguments[2] || null;
-    var refresh = (arguments.length === 5) ? arguments[3] : null;
-    var cb = (arguments.length === 5) ? arguments[4] : arguments[3];
-    cb = cb || noop;
+    var refresh = arguments[3] || null;
+    var cb = arguments[4] || noop;
+    if(arguments.length === 4 && typeof arguments[3] === 'function'){
+      cb = arguments[3];
+      if(typeof arguments[2] === 'function'){
+        refresh = arguments[2];
+        expiration = null;
+      }
+      else{
+        expiration = arguments[2];
+        refresh = null;
+      }
+    }
+    else if(arguments.length === 3 && typeof arguments[2] === 'function'){
+      cb = arguments[2];
+      expiration = null;
+    }
     log(false, '.set() called:', {key: key, value: value});
     for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
