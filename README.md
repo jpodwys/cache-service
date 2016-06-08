@@ -180,7 +180,7 @@ Whether a cache should not be written to. Useful if you're sharing a redis cache
 
 ## .get(key, callback (err, response))
 
-Retrieve a value by a given key.
+Retrieve a value by a given key. All [available cache modules](#available-cache-modules) attempt to `JSON.parse` all values returned from `.get()` and `JSON.stringify` all values passed to `.set()`.
 
 * key: type: string
 * callback: type: function
@@ -200,7 +200,7 @@ Retrieve the values belonging to a series of keys. If a key is not found, it wil
 
 > See the [Using Background Refresh](#using-background-refresh) section for more about the `refresh` and `callback` params.
 
-Set a value by a given key.
+Set a value by a given key. All [available cache modules](#available-cache-modules) attempt to `JSON.stringify` all values passed to `.set()` and `JSON.parse` all values returned from `.get()`.
 
 * key: type: string
 * callback: type: function
@@ -236,6 +236,8 @@ Flush all keys and values from an instance of cache-service.
 * callback: type: function
 
 ## .caches
+
+> IMPORTANT: While this property is available for viewing, modifying it at run time will almost certainly break cache-service.
 
 This is the `cacheModules` array you passed as the second param to the constructor.
 
