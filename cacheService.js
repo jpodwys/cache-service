@@ -1,4 +1,4 @@
-var cacheCollection = require('./cacheCollection');
+var CacheCollection = require('./cacheCollection');
 
 /**
  * cacheService constructor
@@ -28,9 +28,11 @@ function cacheService(cacheServiceConfig, cacheModules) {
     if(arguments.length < 2){
       throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.get() requires 2 arguments.');
     }
+
     log(false, '.get() called:', {key: key});
     var curCache;
     var curCacheIndex = 0;
+
     var callback = function(err, result){
       var status = checkCacheResponse(key, err, result, curCache.type, curCacheIndex - 1);
       if(status.status === 'continue'){
@@ -51,12 +53,14 @@ function cacheService(cacheServiceConfig, cacheModules) {
         cb(null, null);
       }
     };
+
     function getNextCache(){
       if(curCacheIndex < self.caches.length){
         curCache = self.caches[curCacheIndex++];
         curCache.get(key, callback);
       }
     }
+
     getNextCache();
   };
 
@@ -220,7 +224,7 @@ function cacheService(cacheServiceConfig, cacheModules) {
     self.nameSpace = cacheServiceConfig.nameSpace || '';
     self.verbose = (typeof cacheServiceConfig.verbose === 'boolean') ? cacheServiceConfig.verbose : false;
     self.writeToVolatileCaches = (typeof cacheServiceConfig.writeToVolatileCaches === 'boolean') ? cacheServiceConfig.writeToVolatileCaches : true;
-    self.caches = new cacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
+    self.caches = new CacheCollection({nameSpace: self.nameSpace, verbose: self.verbose}, cacheModules).caches;
   }
 
   /**
