@@ -24,10 +24,12 @@ This gives you the [default configuration](#what-does-the-default-configuration-
 ```javascript
 function getData(key, cb){
   cacheService.get(key, function (err, response){
-    if(!err){
-      cb(err, response);
+    if (err) { // err is truthy if an actual error occurred
+      cb(err);
     }
-    else{
+    if(response) { // response is null when there's no cache response
+      cb(err, response);
+    } else { // response contains the value if the cache hits
       performQuery(key, function (err, response){
         var value = response.body.user;
         cacheService.set(key, value);
@@ -185,7 +187,7 @@ Retrieve a value by a given key. All [available cache modules](#available-cache-
 * key: type: string
 * callback: type: function
 * err: type: object
-* response: type: string or object
+* response: type: string or object, null on cache miss
 
 ## .mget(keys, callback (err, response))
 
