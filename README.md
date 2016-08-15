@@ -25,17 +25,16 @@ This gives you the [default configuration](#what-does-the-default-configuration-
 function getData(key, cb){
   cacheService.get(key, function (err, response){
     if (err) { // err is truthy if an actual error occurred
-      cb(err);
+      return cb(err);
     }
     if(response) { // response is null when there's no cache response
-      cb(err, response);
-    } else { // response contains the value if the cache hits
-      performQuery(key, function (err, response){
-        var value = response.body.user;
-        cacheService.set(key, value);
-        cb(err, value);
-      });
+      return cb(err, response);
     }
+    performQuery(key, function (err, response){
+      var value = response.body.user;
+      cacheService.set(key, value);
+      return cb(err, value);
+    });
   });
 }
 ```
