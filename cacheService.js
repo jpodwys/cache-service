@@ -152,11 +152,17 @@ function cacheService(cacheServiceConfig, cacheModules) {
       expiration = null;
     }
     log(false, '.set() called:', {key: key, value: value});
+    var moduleCallbacks = 0;
     for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       var ref = (i === self.caches.length - 1) ? refresh : null;
-      var func = (i === 0) ? cb : noop;
-      cache.set(key, value, expiration, ref, func);
+      cache.set(key, value, expiration, ref, moduleCallback);
+    }
+    function moduleCallback(err){
+      if (++moduleCallbacks === self.cachesLength){
+        // note: no errors are passed back!
+        cb(null);
+      }
     }
   };
 
@@ -174,14 +180,16 @@ function cacheService(cacheServiceConfig, cacheModules) {
     var expiration = arguments[1] || null;
     var cb = arguments[2] || null;
     log(false, '.mset() called:', {data: obj});
+    var moduleCallbacks = 0;
     for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
       expiration = expiration || cache.expiration;
-      if(i === self.caches.length - 1){
-        cache.mset(obj, expiration, cb);
-      }
-      else{
-        cache.mset(obj, expiration);
+      cache.mset(obj, expiration, moduleCallback);
+    }
+    function moduleCallback(err){
+      if (++moduleCallbacks === self.cachesLength){
+        // note: no errors are passed back!
+        cb(null);
       }
     }
   };
@@ -196,13 +204,15 @@ function cacheService(cacheServiceConfig, cacheModules) {
       throw new Exception('INCORRECT_ARGUMENT_EXCEPTION', '.del() requires a minimum of 1 argument.');
     }
     log(false, '.del() called:', {keys: keys});
+    var moduleCallbacks = 0;
     for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
-      if(i === self.caches.length - 1){
-        cache.del(keys, cb);
-      }
-      else{
-        cache.del(keys);
+      cache.del(keys, moduleCallback);
+    }
+    function moduleCallback(err){
+      if (++moduleCallbacks === self.cachesLength){
+        // note: no errors are passed back!
+        cb(null);
       }
     }
   };
@@ -213,13 +223,15 @@ function cacheService(cacheServiceConfig, cacheModules) {
    */
   self.flush = function(cb){
     log(false, '.flush() called');
+    var moduleCallbacks = 0;
     for(var i = 0; i < self.cachesLength; i++){
       var cache = self.caches[i];
-      if(i === self.caches.length - 1){
-        cache.flush(cb);
-      }
-      else{
-        cache.flush();
+      cache.flush(moduleCallback);
+    }
+    function moduleCallback(err){
+      if (++moduleCallbacks === self.cachesLength){
+        // note: no errors are passed back!
+        cb(null);
       }
     }
   };
