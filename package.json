@@ -7,10 +7,13 @@
     "cache-service-cache-module": "1.x"
   },
   "devDependencies": {
+    "cache-service-memcached": "^1.0.0-beta.1",
     "cache-service-node-cache": "1.1.0",
     "cache-service-redis": "1.1.0",
     "expect": "1.6.0",
+    "memcached-mock": "^0.1.0",
     "mocha": "2.2.4",
+    "proxyquire": "^1.7.11",
     "redis-js": "0.0.12-6"
   },
   "scripts": {
@@ -33,6 +36,7 @@
     "cache",
     "node",
     "redis",
+    "memcached",
     "node-cache",
     "tiered"
   ]
