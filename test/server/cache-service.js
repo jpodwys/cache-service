@@ -7,8 +7,13 @@ var redisMock = require('redis-js');
 var redisCache = new rcModule({redisMock: redisMock});
 var cModule = require('cache-service-cache-module');
 var cacheModule = new cModule();
+var memcachedMock = require('memcached-mock');
+var proxyquire = require('proxyquire');
+var MemcachedCacheModule = proxyquire('cache-service-memcached', { memcached: memcachedMock });
+var memcached = new MemcachedCacheModule();
 var cacheService = new cs({writeToVolatileCaches: false}, [
   redisCache,
+  memcached,
   cacheModule,
   nodeCache
 ]);
@@ -213,8 +218,11 @@ describe('cachService background refresh tests', function () {
           cacheService.caches[1].get(key, function (err, response){
             expect(response).toBe(null);
             cacheService.caches[2].get(key, function (err, response){
-              expect(response).toBe(1);
-              done();
+              expect(response).toBe(null);
+              cacheService.caches[3].get(key, function (err, response){
+                expect(response).toBe(1);
+                done();
+              });
             });
           });
         });

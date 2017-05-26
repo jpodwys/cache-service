@@ -296,6 +296,10 @@ var refresh = function(key, cb){
 
 A redis wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-redis).
 
+#### cache-service-memcached
+
+A memcached wrapper for cache-service or standalone use. [Available on NPM](https://www.npmjs.com/package/cache-service-memcached).
+
 #### cache-service-node-cache
 
 An in-memory cache wrapper for cache-service or standalone use. [Available on NPM](https://github.com/jpodwys/cache-service-node-cache).
